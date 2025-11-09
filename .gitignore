@@ -110,3 +110,9 @@ credentials.json
 # ------------------------------------------------
 # Node modules (if you add any JS tooling)
 node_modules/
+
+
+
+
+# Ignore Smart Environment folder
+.smart-env

@@ -12,10 +12,105 @@ import sys
 import json
 import time
 import subprocess
+import re
+import threading
 from datetime import datetime
 from pathlib import Path
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+
+
+class QueueMonitor(threading.Thread):
+    """Monitors the processing queue and displays real-time agent status."""
+
+    def __init__(self, queue_path):
+        super().__init__(daemon=True)
+        self.queue_path = Path(queue_path)
+        self.running = True
+        self.last_status = None
+        self.last_mtime = 0
+
+    def run(self):
+        """Monitor queue file for changes and display updates."""
+        while self.running:
+            try:
+                # Check if queue file was modified
+                current_mtime = self.queue_path.stat().st_mtime
+
+                if current_mtime != self.last_mtime:
+                    self.last_mtime = current_mtime
+                    self._check_queue_status()
+
+                time.sleep(2)  # Check every 2 seconds
+
+            except Exception as e:
+                # Queue file might not exist yet
+                time.sleep(5)
+
+    def _check_queue_status(self):
+        """Parse queue file and display current status."""
+        try:
+            with open(self.queue_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            # Extract "Currently Processing" section
+            processing_match = re.search(
+                r'## Currently Processing\s*\n\s*<!--.*?-->\s*\n(.*?)(?=\n---|\n##|$)',
+                content,
+                re.DOTALL
+            )
+
+            if processing_match and processing_match.group(1).strip():
+                processing_text = processing_match.group(1).strip()
+
+                # Parse processing details
+                file_match = re.search(r'^-\s+(\S+)', processing_text, re.MULTILINE)
+                stage_match = re.search(r'^\s*-\s*\*\*Stage\*\*:\s*(.+?)$', processing_text, re.MULTILINE)
+                started_match = re.search(r'^\s*-\s*\*\*Started\*\*:\s*(.+?)$', processing_text, re.MULTILINE)
+
+                if file_match:
+                    filename = file_match.group(1)
+                    stage = stage_match.group(1) if stage_match else "Unknown"
+                    started = started_match.group(1) if started_match else "Unknown"
+
+                    status_msg = f"📋 AGENT STATUS: Processing {filename}\n    Stage: {stage}\n    Started: {started}"
+
+                    if status_msg != self.last_status:
+                        print(f"\n{'─'*60}")
+                        print(status_msg)
+                        print(f"{'─'*60}\n")
+                        self.last_status = status_msg
+
+            # Check for completed files (new completions)
+            completed_section = re.search(
+                r'## Completed \(Last 24 Hours\)(.*?)(?=\n---|\n##|$)',
+                content,
+                re.DOTALL
+            )
+
+            if completed_section:
+                # Look for very recent completions (within last minute)
+                recent_pattern = r'- \[x\]\s+(\S+)\s+\n\s+- \*\*Completed\*\*:\s+([^\n]+)\n\s+.*?\*\*Status\*\*:\s+(✅[^\n]+)'
+                for match in re.finditer(recent_pattern, completed_section.group(1)):
+                    filename = match.group(1)
+                    completed_time = match.group(2)
+                    status = match.group(3)
+
+                    completion_msg = f"✅ COMPLETED: {filename}\n    Time: {completed_time}\n    {status}"
+
+                    # Only show if this is new (not in last_status)
+                    if self.last_status and filename not in str(self.last_status):
+                        print(f"\n{'═'*60}")
+                        print(completion_msg)
+                        print(f"{'═'*60}\n")
+
+        except Exception as e:
+            # Silently ignore parsing errors
+            pass
+
+    def stop(self):
+        """Stop the monitor thread."""
+        self.running = False
 
 
 class ConversationFileHandler(FileSystemEventHandler):
@@ -29,11 +124,15 @@ class ConversationFileHandler(FileSystemEventHandler):
         self.processing_batch = []
         self.batch_timeout = 5  # Wait 5 seconds for more files before processing batch
         self.last_file_time = None
+        self.seen_files = set()  # Track files we've already seen (for polling)
 
         print(f"[#] Configuration loaded:")
         print(f"    - Batch threshold: {self.config['batch_processing']['min_file_count']} files")
         print(f"    - Large file threshold: {self.config['batch_processing']['large_file_threshold_chars']:,} chars")
         print(f"    - Batch timeout: {self.batch_timeout}s")
+
+        # Initialize seen_files with existing files
+        self._scan_existing_files()
 
     def load_config(self):
         """Load configuration from config.json."""
@@ -57,21 +156,61 @@ class ConversationFileHandler(FileSystemEventHandler):
             return
 
         file_path = Path(event.src_path)
+        print(f"[DEBUG] on_created event: {file_path.name}")
 
         # Only process files starting with "unprocessed_" and ending with ".md"
         if file_path.name.startswith("unprocessed_") and file_path.suffix == ".md":
-            print(f"\n[+] Detected new file: {file_path.name}")
+            self._add_file_to_batch(file_path)
 
-            # Wait briefly for file write to complete
-            time.sleep(0.5)
+    def on_modified(self, event):
+        """Called when a file is modified (Windows fallback)."""
+        if event.is_directory:
+            return
 
-            # Add to batch and set timer
-            self.processing_batch.append(file_path)
-            self.last_file_time = time.time()
+        file_path = Path(event.src_path)
+        print(f"[DEBUG] on_modified event: {file_path.name}")
 
-            # Start monitoring for batch
-            print(f"    Added to batch (currently {len(self.processing_batch)} file(s))")
-            print(f"    Waiting {self.batch_timeout}s for more files...")
+        # Only process files starting with "unprocessed_" and ending with ".md"
+        # Check if already in batch to avoid duplicates
+        if file_path.name.startswith("unprocessed_") and file_path.suffix == ".md":
+            if file_path not in self.processing_batch:
+                self._add_file_to_batch(file_path)
+
+    def _add_file_to_batch(self, file_path):
+        """Add a file to the processing batch."""
+        print(f"\n[+] Detected new file: {file_path.name}")
+
+        # Wait briefly for file write to complete
+        time.sleep(0.5)
+
+        # Add to batch and set timer
+        self.processing_batch.append(file_path)
+        self.last_file_time = time.time()
+
+        # Start monitoring for batch
+        print(f"    Added to batch (currently {len(self.processing_batch)} file(s))")
+        print(f"    Waiting {self.batch_timeout}s for more files...")
+
+    def _scan_existing_files(self):
+        """Scan directory for existing files to avoid reprocessing."""
+        try:
+            for file_path in self.raw_conversations_path.glob("*.md"):
+                self.seen_files.add(file_path.name)
+            print(f"[i] Initialized with {len(self.seen_files)} existing files")
+        except Exception as e:
+            print(f"[!] Error scanning existing files: {e}")
+
+    def poll_for_new_files(self):
+        """Manually poll for new files (Windows fallback)."""
+        try:
+            for file_path in self.raw_conversations_path.glob("unprocessed_*.md"):
+                if file_path.name not in self.seen_files:
+                    print(f"[POLL] Found new file: {file_path.name}")
+                    self.seen_files.add(file_path.name)
+                    if file_path not in self.processing_batch:
+                        self._add_file_to_batch(file_path)
+        except Exception as e:
+            print(f"[!] Error polling for files: {e}")
 
     def check_and_process_batch(self):
         """Check if batch is ready to process."""
@@ -97,48 +236,42 @@ class ConversationFileHandler(FileSystemEventHandler):
 
         # Calculate batch statistics
         total_size = 0
-        renamed_files = []
+        files_to_queue = []
 
         for file_path in self.processing_batch:
             try:
                 # Get file size
                 file_size = file_path.stat().st_size
                 total_size += file_size
+                files_to_queue.append(file_path)
 
-                # Rename file from unprocessed_ to processing_
-                new_name = file_path.name.replace("unprocessed_", "processing_")
-                new_path = file_path.parent / new_name
-
-                file_path.rename(new_path)
-                renamed_files.append(new_path)
-
-                print(f"[>] Renamed: {file_path.name} -> {new_name}")
+                print(f"[+] Queued: {file_path.name} ({file_size:,} bytes)")
 
             except Exception as e:
                 print(f"[X] Error processing {file_path.name}: {e}")
 
-        if not renamed_files:
-            print("[!] No files were successfully renamed")
+        if not files_to_queue:
+            print("[!] No files were successfully queued")
             self.processing_batch = []
             self.last_file_time = None
             return
 
         # Determine batch mode
-        batch_mode = self.determine_batch_mode(renamed_files, total_size)
+        batch_mode = self.determine_batch_mode(files_to_queue, total_size)
 
         # Update processing queue
-        self.update_processing_queue(renamed_files, batch_mode, total_size)
+        self.update_processing_queue(files_to_queue, batch_mode, total_size)
 
         # Clear batch
         self.processing_batch = []
         self.last_file_time = None
 
-        print(f"\n[✓] Batch processing complete!")
+        print(f"\n[✓] Batch queuing complete!")
         print(f"    Mode: {batch_mode}")
-        print(f"    Files: {len(renamed_files)}")
+        print(f"    Files: {len(files_to_queue)}")
         print(f"    Total size: {total_size:,} bytes ({total_size/1000:.1f} KB)")
-        print(f"\n[i] Files are now in the processing queue.")
-        print(f"    The Processing Pipeline Agent will pick them up automatically.")
+        print(f"\n[i] Files remain as 'unprocessed_*.md' until agent starts processing.")
+        print(f"    The Processing Pipeline Agent will rename them when it begins.")
         print(f"{'='*60}\n")
 
     def determine_batch_mode(self, files, total_size):
@@ -187,7 +320,7 @@ class ConversationFileHandler(FileSystemEventHandler):
                 f"\n\n### Batch Added: {timestamp}\n",
                 f"**Mode**: {mode}",
                 f"**File count**: {len(files)}",
-                f"**Total Size**: {total_size:,} characters\n",
+                f"**Total Size**: {total_size:,} bytes\n",
                 "**Files**:"
             ]
 
@@ -244,28 +377,33 @@ class ConversationFileHandler(FileSystemEventHandler):
             vault_dir = self.raw_conversations_path.parent.parent
 
             cmd = [
-                'claude', '-p',  # Headless/print mode
+                r'C:\Users\bearj\AppData\Roaming\npm\claude.cmd',  # Full path to claude
+                '-p',  # Headless/print mode
                 'Use the processing-pipeline-agent subagent to process all files in the queue.',
                 '--output-format', 'json',
-                '--max-turns', '20'  # Allow enough turns for full pipeline
+                '--max-turns', '30',  # Allow enough turns for full pipeline
+                '--permission-mode', 'bypassPermissions'  # Auto-approve file operations
             ]
 
             # Run agent in background (non-blocking)
+            # Use DEVNULL to prevent buffer hang issues
             process = subprocess.Popen(
                 cmd,
                 cwd=str(vault_dir),
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
                 text=True
             )
 
             print(f"[✓] Agent spawned (PID: {process.pid})")
             print("    Processing will happen in background...")
-            print("    Check processing-queue.md for status updates")
+            print("    Real-time status updates will appear below")
+            print(f"    (Agent will process through 8-stage pipeline with max 30 turns)")
 
         except FileNotFoundError:
-            print("[X] 'claude' command not found")
-            print("    Make sure Claude Code is installed and in PATH")
+            print("[X] Claude executable not found at expected path")
+            print("    Expected: C:\\Users\\bearj\\AppData\\Roaming\\npm\\claude.cmd")
+            print("    Make sure Claude Code is installed")
             print("    You can manually run: claude 'Use processing-pipeline-agent'")
         except Exception as e:
             print(f"[X] Error spawning agent: {e}")
@@ -317,21 +455,36 @@ def main():
     observer.schedule(event_handler, str(raw_conversations_path), recursive=False)
     observer.start()
 
+    # Start queue monitor for real-time agent status
+    queue_monitor = QueueMonitor(queue_path)
+    queue_monitor.start()
+
     print()
     print("[✓] File watcher is running!")
     print(f"    Press Ctrl+C to stop")
     print()
     print("Monitoring for new conversation files...")
+    print("    (Using both file system events + polling for Windows compatibility)")
+    print("    (Monitoring processing queue for agent status updates)")
     print("-" * 60)
 
     try:
+        poll_counter = 0
         while True:
             time.sleep(1)
+            poll_counter += 1
+
+            # Poll for new files every 3 seconds (Windows fallback)
+            if poll_counter >= 3:
+                event_handler.poll_for_new_files()
+                poll_counter = 0
+
             # Check if batch needs processing
             event_handler.check_and_process_batch()
 
     except KeyboardInterrupt:
         print("\n\n[-] Stopping file watcher...")
+        queue_monitor.stop()
         observer.stop()
         observer.join()
         print("[✓] File watcher stopped.")

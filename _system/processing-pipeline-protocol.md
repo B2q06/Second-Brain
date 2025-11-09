@@ -95,6 +95,31 @@ cat C:/Obsidian-memory-vault/_system/config.json
 
 ### For Each Conversation File
 
+**FIRST: Rename file to signal processing has started**:
+```bash
+# Rename unprocessed_*.md to processing_*.md
+# This indicates the file is actively being processed
+mv "C:/Obsidian-memory-vault/00-Inbox/raw-conversations/unprocessed_conversation_20251107_001.md" \
+   "C:/Obsidian-memory-vault/00-Inbox/raw-conversations/processing_conversation_20251107_001.md"
+```
+
+**If rename fails**: Log warning but continue processing
+
+**THEN: Update queue with processing status**:
+
+Edit the "Currently Processing" section in processing-queue.md:
+
+```markdown
+## Currently Processing
+
+- processing_conversation_20251108_2327_002.md
+  - **Started**: 2025-11-08 23:45:30
+  - **Stage**: 1/8 (Entity Extraction)
+  - **Elapsed**: 10 seconds
+```
+
+Update the **Stage** field as you progress through each stage.
+
 **Read the file**:
 ```bash
 # Using Read tool
@@ -455,6 +480,20 @@ Write({
 ---
 
 ## Stage 7: Node Updates (Bidirectional Linking)
+
+### Use MCP Tools for Graph Updates
+
+**If graphiti MCP is available**:
+- Use graphiti tools to create/update knowledge graph entities
+- Link entities with relationships
+- Add episodic context
+
+**If neo4j MCP is available**:
+- Create entity nodes directly in Neo4j
+- Update existing nodes with new information
+- Query for related entities
+
+**Track entity counts** for queue update.
 
 ### Update Related Notes
 

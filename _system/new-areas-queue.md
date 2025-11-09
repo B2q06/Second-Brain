@@ -364,3 +364,46 @@ When proposing new areas:
 
 **Last Updated**: 2025-11-07
 **Next Review**: When 5+ pending proposals OR 1 week from now
+
+### 2025-11-09 - Proposed Area: "MCP Architecture"
+
+**Proposed by**: Processing Pipeline Agent (conversation_20251109_neo4j_mcp_integration)
+**Confidence**: 0.85
+**Source Conversations**: 1
+**Novelty Score**: High
+
+**Why this is a new area**:
+Model Context Protocol (MCP) server architecture represents a distinct integration pattern for connecting AI systems to external tools and databases. This is foundational infrastructure for the Second Brain system and represents a new technical domain that doesn't fit cleanly into existing areas.
+
+**Tag Cluster**:
+- mcp-servers
+- integration
+- architecture
+- neo4j
+- graphiti
+- obsidian
+- system-design
+- configuration
+
+**Suggested Parent Area**: Technology > Integration > Knowledge Management Systems
+**Suggested Level**: 4
+
+**Related Existing Areas**:
+- Technology > Programming > Automation (similarity: 0.60)
+- Technology > System Design > Architecture (similarity: 0.65)
+- Technology > Databases > Graph > Neo4j (similarity: 0.55)
+
+---
+
+**Actions** (choose one):
+
+- [ ] **Approve** - Create area as-is with proposed name
+- [ ] **Edit Name** - Create area with different name: `_________________`
+- [ ] **Merge** - Merge with existing area: `_________________`
+- [ ] **Ignore** - Too specific / not significant enough
+
+**Human Decision**: [To be filled by you]
+**Date Resolved**: [Date you made the decision]
+**Notes**: [Any additional thoughts]
+
+---
