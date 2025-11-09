@@ -1,0 +1,202 @@
+{
+  "main": {
+    "id": "f6eab80bf36c296d",
+    "type": "split",
+    "children": [
+      {
+        "id": "ad2fd251eb04c8fa",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "cf823d7de3937b85",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "_system/tag-taxonomy.md",
+                "mode": "preview",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "tag-taxonomy"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "41f8fa4feb7a8fac",
+    "type": "split",
+    "children": [
+      {
+        "id": "c23e0e17c56d073d",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f585f9b0d07b1a74",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "f575d66bc0cc0dae",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "2430a0d57c0d4f3b",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "3767cfcc003e6e5e",
+    "type": "split",
+    "children": [
+      {
+        "id": "af19308f31106c35",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6c2ce6c30263b8c5",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "CIA and Mossad.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for CIA and Mossad"
+            }
+          },
+          {
+            "id": "d25d3490f051e49a",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "CIA and Mossad.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from CIA and Mossad"
+            }
+          },
+          {
+            "id": "b0a7895e37d62fa1",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "dfec9d8f82e4bb72",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "CIA and Mossad.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of CIA and Mossad"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "cf823d7de3937b85",
+  "lastOpenFiles": [
+    "README.md",
+    "README.md.tmp.39340.1762576940398",
+    "_system/tag-taxonomy.md.tmp.39340.1762576693323",
+    "requirements.txt",
+    "requirements.txt.tmp.39340.1762576650179",
+    "scripts/file_watcher.py",
+    "scripts/file_watcher.py.tmp.39340.1762576631970",
+    "scripts",
+    "_system/processing-queue.md",
+    "_system/processing-queue.md.tmp.39340.1762576582581",
+    "_system/new-areas-queue.md",
+    "_system/new-areas-queue.md.tmp.39340.1762576523716",
+    "_system/area-taxonomy.json",
+    "_system/processing-pipeline-protocol.md",
+    "_system/memory-update-protocol.md",
+    "Tag Review Queue.md",
+    "_system/tag-taxonomy.md",
+    "_system/README.md",
+    "10-Projects/project 1.md",
+    "templates/project.md",
+    "templates/conversation.md",
+    "templates/knowledge.md",
+    "templates/skill.md",
+    "Untitled.canvas",
+    "2025-11-07.md",
+    "Welcome.md",
+    "CIA and Mossad.md"
+  ]
+}

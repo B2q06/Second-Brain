@@ -1,0 +1,64 @@
+{
+  "version": "1.0",
+  "system_name": "The Second Brain",
+  "created": "2025-11-07",
+
+  "brain_space_calculation": {
+    "mode": "file_count",
+    "threshold": 10,
+    "description": "Modes: 'daily' (recalculate once per day) or 'file_count' (recalculate after N files processed)"
+  },
+
+  "batch_processing": {
+    "min_file_count": 5,
+    "large_file_threshold_chars": 100000,
+    "total_batch_threshold_chars": 500000,
+    "description": "Trigger batch mode if: >5 files, OR single file >100k chars, OR total >500k chars"
+  },
+
+  "time_tracking": {
+    "idle_gap_minutes": 30,
+    "default_session_minutes": 5,
+    "description": "Gaps >30 minutes between messages are considered idle time and excluded"
+  },
+
+  "file_watcher": {
+    "check_interval_seconds": 10,
+    "watch_path": "C:/Obsidian-memory-vault/00-Inbox/raw-conversations",
+    "enabled": true
+  },
+
+  "taxonomy": {
+    "max_depth": 8,
+    "flexible_depth": true,
+    "discovery_mode": "data_driven",
+    "description": "Areas discovered from actual knowledge, not predefined"
+  },
+
+  "knowledge_scoring": {
+    "graph_percentage_weight": 0.70,
+    "connection_density_weight": 0.15,
+    "time_invested_weight": 0.15,
+    "description": "Brain space score weights (must sum to 1.0)"
+  },
+
+  "neo4j": {
+    "uri": "neo4j://127.0.0.1:7687",
+    "database": "neo4j",
+    "description": "Neo4j connection details (password in claude_desktop_config.json)"
+  },
+
+  "agents": {
+    "memory_update_agent": {
+      "name": "memory-update-agent",
+      "protocol_file": "_system/memory-update-protocol.md",
+      "tools": ["Read", "Write", "Bash"]
+    },
+    "processing_pipeline_agent": {
+      "name": "processing-pipeline-agent",
+      "protocol_file": "_system/processing-pipeline-protocol.md",
+      "tools": ["Read", "Write", "Edit", "Glob", "Grep", "Bash", "AskUserQuestion"],
+      "mcp_servers": ["neo4j", "obsidian"]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+# The Second Brain - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# File watching for automated conversation detection
+watchdog>=3.0.0
+
+# Future dependencies (commented out for now, uncomment when needed)
+
+# Graphiti for knowledge graph (if using Python API directly)
+# graphiti-core>=0.1.0
+
+# Neo4j driver (if connecting directly without MCP)
+# neo4j>=5.13.0
+
+# Python frontmatter for markdown metadata
+# python-frontmatter>=1.0.0
+
+# Rich for better terminal output (optional)
+# rich>=13.0.0

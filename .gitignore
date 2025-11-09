@@ -1,0 +1,112 @@
+# ================================================
+# Obsidian Memory Vault - .gitignore
+# ================================================
+
+# ------------------------------------------------
+# Conversation Data (Privacy Protection)
+# ------------------------------------------------
+# Exclude all conversation files to protect personal data
+00-Inbox/raw-conversations/
+**/conversation-*.md
+**/unprocessed_*.md
+**/processed_*.md
+
+# ------------------------------------------------
+# Python Development
+# ------------------------------------------------
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# ------------------------------------------------
+# Operating System Files
+# ------------------------------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
+.Trash-*
+
+# ------------------------------------------------
+# Logs & Temporary Files
+# ------------------------------------------------
+*.log
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.backup
+
+# ------------------------------------------------
+# IDE / Editor Files
+# ------------------------------------------------
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ------------------------------------------------
+# Neo4j Local Database (if applicable)
+# ------------------------------------------------
+# Uncomment if running Neo4j locally:
+# neo4j/
+
+# ------------------------------------------------
+# Environment Variables & Secrets
+# ------------------------------------------------
+.env
+.env.local
+.env.*.local
+secrets.json
+credentials.json
+
+# ------------------------------------------------
+# Other
+# ------------------------------------------------
+# Node modules (if you add any JS tooling)
+node_modules/

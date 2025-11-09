@@ -1,0 +1,135 @@
+{
+  "system_name": "The Second Brain",
+  "version": "1.0",
+  "created": "2025-11-07T21:00:00Z",
+  "last_updated": "2025-11-07T21:00:00Z",
+
+  "settings": {
+    "max_depth": 8,
+    "flexible_depth": true,
+    "discovery_mode": "data_driven",
+    "description": "Areas are discovered from actual knowledge, not predefined"
+  },
+
+  "metadata": {
+    "total_notes": 0,
+    "total_areas": 0,
+    "total_root_areas": 0,
+    "total_hours_tracked": 0.0,
+    "date_range": {
+      "first_note": null,
+      "last_note": null
+    }
+  },
+
+  "root_areas": [],
+
+  "pending_areas": [],
+
+  "_schema_documentation": {
+    "description": "This file contains the hierarchical knowledge area structure",
+
+    "area_object_structure": {
+      "id": "string (unique identifier, e.g., 'tech_prog_python')",
+      "name": "string (display name, e.g., 'Python')",
+      "level": "integer (0-8, where 0 is root level)",
+      "parent_id": "string or null (id of parent area)",
+
+      "brain_space_score": "float (0-1, calculated score)",
+      "recency_score": "float (0-1, exponential decay based on last activity)",
+
+      "tags": ["array of canonical tag strings associated with this area"],
+
+      "metadata": {
+        "total_notes": "integer (count of notes in this area)",
+        "graph_percentage": "float (notes in area / total notes)",
+        "connection_density": "float (links to other areas / possible connections)",
+        "time_invested_hours": "float (sum of conversation durations)",
+        "connections_to": ["array of area ids this area links to"],
+        "last_activity": "ISO date string (most recent note)",
+        "created": "ISO date string (when area was discovered)",
+        "growth_rate": "float (percentage growth per quarter)"
+      },
+
+      "children": ["array of nested area_objects"],
+
+      "level_breakdown": {
+        "description": "Percentage breakdown of sub-levels within this area",
+        "example": {
+          "level_1": {
+            "Programming": 0.625,
+            "Databases": 0.196,
+            "Infrastructure": 0.178
+          }
+        }
+      }
+    },
+
+    "example_root_area": {
+      "id": "technology",
+      "name": "Technology",
+      "level": 0,
+      "parent_id": null,
+      "brain_space_score": 0.408,
+      "recency_score": 0.89,
+      "tags": ["technology", "tech"],
+      "metadata": {
+        "total_notes": 1247,
+        "graph_percentage": 0.43,
+        "connection_density": 0.375,
+        "time_invested_hours": 2840.5,
+        "connections_to": ["science", "business"],
+        "last_activity": "2025-11-07",
+        "created": "2025-01-15",
+        "growth_rate": 0.12
+      },
+      "children": [
+        {
+          "id": "tech_programming",
+          "name": "Programming",
+          "level": 1,
+          "parent_id": "technology",
+          "brain_space_score": 0.28,
+          "recency_score": 0.92,
+          "tags": ["programming", "coding", "development"],
+          "metadata": {
+            "total_notes": 780,
+            "graph_percentage": 0.269
+          },
+          "children": []
+        }
+      ],
+      "level_breakdown": {
+        "level_1": {
+          "Programming": 0.625,
+          "Databases": 0.196,
+          "Infrastructure": 0.178
+        }
+      }
+    },
+
+    "pending_area_structure": {
+      "proposed_name": "string (suggested area name)",
+      "confidence": "float (0-1, how confident the system is this is a new area)",
+      "reason": "string (why this area is proposed)",
+      "tag_cluster": ["array of tags that cluster together"],
+      "conversation_count": "integer (how many conversations mention this)",
+      "suggested_parent": "string (proposed parent area path)",
+      "suggested_level": "integer (depth level 0-8)",
+      "awaiting_approval": true,
+      "proposed_date": "ISO date string"
+    }
+  },
+
+  "_usage_notes": {
+    "how_to_add_areas": "Areas are discovered automatically from conversation data. The Processing Pipeline Agent proposes new areas when it finds tag clusters that don't fit existing areas. These proposals are added to 'pending_areas' and require human approval.",
+
+    "brain_space_calculation": "brain_space_score = (graph_percentage * 0.70) + (connection_density * 0.15) + (time_weight * 0.15)",
+
+    "recency_calculation": "recency_score = exp(-days_since_last_activity / 30)",
+
+    "when_to_recalculate": "Based on config.json settings: either daily or after N files processed",
+
+    "visualization": "Use brain_space_score for node size in Obsidian 3D graph view, recency_score for color (red=active, blue=old)"
+  }
+}
