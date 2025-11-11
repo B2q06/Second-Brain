@@ -419,12 +419,51 @@ class ConversationFileHandler(FileSystemEventHandler):
     def _wait_and_embed(self, process, vault_dir):
         """Wait for agent to complete, then trigger embedding of new notes."""
         try:
-            # Wait for agent process to complete
-            return_code = process.wait()
+            # Monitor completion signal file instead of just waiting for process
+            signal_file = vault_dir / "_system" / "agent_completion_signal.txt"
+            timeout = 600  # 10 minutes max
+            start_time = time.time()
 
-            print(f"\n{'─'*60}")
-            print(f"[i] Agent completed with return code: {return_code}")
-            print(f"{'─'*60}\n")
+            print(f"\n[i] Monitoring agent completion signal...")
+            print(f"    Signal file: {signal_file}")
+            print(f"    Timeout: {timeout} seconds\n")
+
+            # Poll for completion signal
+            while time.time() - start_time < timeout:
+                if signal_file.exists():
+                    # Read signal
+                    try:
+                        with open(signal_file, 'r') as f:
+                            signal = f.read().strip()
+                        print(f"\n{'─'*60}")
+                        print(f"[✓] Agent completion signal received: {signal}")
+                        print(f"{'─'*60}\n")
+
+                        # Delete signal file
+                        signal_file.unlink()
+                        break
+                    except Exception as e:
+                        print(f"[!] Error reading signal file: {e}")
+
+                # Check if process exited prematurely
+                if process.poll() is not None:
+                    print(f"\n[!] Agent process exited with code: {process.returncode}")
+                    if not signal_file.exists():
+                        print(f"[!] No completion signal found - agent may have failed")
+                    break
+
+                time.sleep(2)  # Check every 2 seconds
+            else:
+                # Timeout reached
+                print(f"\n[!] Agent timeout - exceeded {timeout} seconds")
+                print(f"[!] Terminating agent process...")
+                process.terminate()
+                process.wait(timeout=10)
+                return
+
+            # Wait for process to fully exit
+            return_code = process.wait(timeout=10)
+            print(f"[i] Agent process exited with return code: {return_code}\n")
 
             # Trigger embedding of newly created processed notes
             print("[~] Embedding new processed notes with Ollama...")

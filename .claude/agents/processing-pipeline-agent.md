@@ -60,9 +60,50 @@ Process conversation files through an 8-stage pipeline **USING MCP TOOLS FOR ALL
 conversation = Read("C:/obsidian-memory-vault/00-Inbox/raw-conversations/processing_*.md")
 ```
 
-☐ **Step 1.2**: Extract entities using LLM analysis
-- Identify: technologies, skills, projects, concepts, people
-- For each entity, list observations (facts about it)
+☐ **Step 1.2**: Extract entities using FLEXIBLE LLM analysis
+- **CRITICAL**: Do NOT limit to predefined types
+- Extract ALL meaningful entities regardless of domain
+- For each entity:
+  - name: The entity name
+  - type: Best-fit category (infer from context)
+  - observations: Facts discussed about this entity
+
+**Supported domains include but not limited to**:
+- Technology: frameworks, languages, tools, databases
+- Concepts: programming patterns, methodologies, theories
+- People: individuals mentioned in conversation
+- Projects: specific projects or systems being built
+- Languages: natural languages, linguistic concepts (e.g., "Chinese Grammar", "Pinyin")
+- History: historical figures, events, organizations (e.g., "Ea-nasir", "Dilmun Trading Guild")
+- Culture: cultural concepts, traditions, practices
+- Science: scientific concepts, theories, fields
+- Art: artistic movements, techniques, works
+- Any other domain: Extract what's actually discussed
+
+**Entity Type Inference Examples**:
+- "FastAPI" → type: "technology" (web framework)
+- "Chinese Grammar" → type: "language-concept" (linguistic structure)
+- "Ea-nasir" → type: "historical-figure" (ancient trader)
+- "Dilmun Trading Guild" → type: "historical-organization" (bronze age commerce)
+- "JWT authentication" → type: "security-concept" (auth mechanism)
+- "Mesopotamian Trade" → type: "historical-topic" (ancient commerce)
+- "Async/Await" → type: "programming-concept" (concurrency pattern)
+
+**Extraction Prompt** (use this):
+```
+Analyze this conversation and extract ALL distinct entities discussed.
+For each entity provide:
+1. name: Clear, specific name
+2. type: Inferred category based on what it is (be creative, don't force into preset types)
+3. observations: List of facts mentioned about this entity
+
+Examples of good extraction:
+- Entity: "Chinese Time Expressions", Type: "language-concept", Observations: ["Must appear before verb in questions", "Includes 几点 (what time)", "Includes 什么时候 (when)"]
+- Entity: "FastAPI", Type: "technology", Observations: ["Python web framework", "Async support"]
+- Entity: "Bronze Age Trade", Type: "historical-topic", Observations: ["Involved copper trading", "Connected Mesopotamia with other regions"]
+
+Extract entities from: [conversation text]
+```
 
 ☐ **Step 1.3**: **EXECUTE** `mcp__neo4j__create_entities` (**REQUIRED**)
 ```javascript
@@ -214,9 +255,89 @@ if (answer == "Approve") {
 ## STAGE 3-6: Continue Per Protocol
 
 ☐ **Stage 3**: Area Matching (map tags to 8-layer taxonomy)
-☐ **Stage 4**: Time Estimation (parse timestamps, calculate active time)
+☐ **Stage 4**: Time Estimation (parse timestamps, 30min idle logic, allocate time per entity)
 ☐ **Stage 5**: Novelty Detection (use `mcp__neo4j__search_memories` for similar conversations)
-☐ **Stage 6**: Note Creation (create processed note with all metadata)
+☐ **Stage 6a**: Conversation Node Creation (episodic memory in processed folder)
+☐ **Stage 6b**: Tag Notes Creation/Update (semantic memory in area folders)
+
+---
+
+## STAGE 6: NOTE CREATION (DUAL SYSTEM - CRITICAL)
+
+**YOU MUST CREATE TWO TYPES OF NOTES**:
+
+### Stage 6a: Conversation Node (Episodic Memory)
+
+☐ **Step 6a.1**: Create conversation note in `00-Inbox/processed/`
+```javascript
+Write({
+  file_path: "C:/Obsidian-memory-vault/00-Inbox/processed/conversation_YYYYMMDD_slug.md",
+  content: full_conversation_with_frontmatter
+})
+```
+
+☐ **Step 6a.2**: Include all metadata in frontmatter
+- type: conversation
+- entities: [list all extracted entities]
+- tags: [list all tags]
+- duration_minutes: calculated time
+- neo4j_node_id: will be added in Stage 7
+
+☐ **Step 6a.3**: Include full conversation transcript in body
+
+---
+
+### Stage 6b: Tag Notes (Semantic Memory) - MANDATORY
+
+**FOR EACH ENTITY** extracted in Stage 1, you MUST:
+
+☐ **Step 6b.1**: Determine tag note location from taxonomy
+```python
+tag_info = tag_taxonomy[entity_name]
+path = tag_info['path']  # "Technology > Programming > Languages > Python"
+folder = path.replace(" > ", "/")  # "Technology/Programming/Languages/Python"
+tag_note_path = f"{vault_root}/{folder}/{entity_name}.md"
+```
+
+☐ **Step 6b.2**: Check if tag note exists
+```javascript
+try {
+  existing_note = Read(tag_note_path)
+  // UPDATE existing note
+} catch {
+  // CREATE new note from template
+}
+```
+
+☐ **Step 6b.3**: If NEW tag note - Create from template
+- Read template: `_system/tag-note-template.md`
+- Fill in all fields
+- Write to tag note path
+- Create folder structure if needed
+
+☐ **Step 6b.4**: If EXISTING tag note - Update it
+- Read existing note
+- Parse frontmatter
+- Increment total_conversations
+- Add to total_time_minutes
+- Insert new update in "Recent Updates" section
+- Update last_updated date
+- Add to "All Conversations" list
+
+☐ **Step 6b.5**: Create folder structure
+```bash
+mkdir -p "path/to/tag/folder"
+```
+
+☐ **Step 6b.6**: Verify all entities have tag notes
+- Count entities extracted: X
+- Count tag notes created/updated: Y
+- If X != Y, ERROR and report which entities failed
+
+**FAILURE CONDITIONS**:
+- ❌ If you did NOT create/update tag notes for ALL entities, you FAILED Stage 6b
+- ❌ If tag notes are in wrong location (not following path from taxonomy), you FAILED
+- ❌ If you only created conversation node but no tag notes, you FAILED Stage 6
 
 ---
 
@@ -267,7 +388,7 @@ console.log(`Found ${related.results_count} related notes`)
 
 ---
 
-## STAGE 8: Finalization
+## STAGE 8: Finalization and STOP
 
 ☐ **Step 8.1**: Rename file
 ```bash
@@ -289,6 +410,25 @@ Edit processing-queue.md:
    Tags: [list]
    Area: [primary area]
 ```
+
+☐ **Step 8.4**: **WRITE COMPLETION SIGNAL** (MANDATORY)
+```bash
+# Signal file watcher that processing is complete
+echo "COMPLETED:$(date -Iseconds)" > C:/Obsidian-memory-vault/_system/agent_completion_signal.txt
+```
+
+☐ **Step 8.5**: **EXIT AGENT** (MANDATORY)
+```python
+import sys
+print("✅ Pipeline complete. Agent stopping now.")
+sys.exit(0)
+```
+
+**CRITICAL**:
+- File watcher monitors the completion signal
+- Triggers embedding script after agent exits
+- Agent MUST exit cleanly after Stage 8
+- Failure to exit = FAILED pipeline
 
 ---
 

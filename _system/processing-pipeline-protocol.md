@@ -191,11 +191,19 @@ neo4j_create_relationship({
 })
 ```
 
-**Entity extraction strategy:**
-- Scan conversation for: projects mentioned, skills used, concepts discussed
-- Create entity for each unique item
+**Entity extraction strategy (FLEXIBLE - NO HARDCODED TYPES):**
+- Scan conversation for ALL meaningful entities across ANY domain
+- Do NOT limit to: projects, skills, concepts (extract whatever is discussed)
+- Infer entity type from context (technology, language-concept, historical-figure, etc.)
+- Create entity for each unique item with appropriate type
 - Link them with relationships
 - Store in Neo4j graph database
+
+**Examples of flexible extraction:**
+- Tech conversation: FastAPI (technology), JWT (security-concept), Python (language)
+- Language conversation: Chinese Grammar (language-concept), Pinyin (writing-system), Time Expressions (grammar-rule)
+- History conversation: Ea-nasir (historical-figure), Dilmun Trading Guild (historical-organization), Copper Trade (historical-topic)
+- Mixed domains: Extract ALL, regardless of category
 
 ---
 
@@ -330,36 +338,112 @@ Look for timestamp patterns in the conversation file:
 19:30:45
 ```
 
-### Calculate Active Time
+### Calculate Active Time with 30min Idle Logic
 
-1. **Extract all timestamps**
-2. **Calculate gaps between consecutive messages**
-3. **Handle idle periods** (gaps > 30 minutes from config):
-   - If gap ≤ 30 minutes: Count full gap as active
-   - If gap > 30 minutes: Count 30 minutes as active, exclude remainder
-4. **Sum active intervals**
+**Load idle threshold from config**:
+```javascript
+config = Read("_system/config.json")
+idle_threshold = config.time_tracking.idle_gap_minutes  // 30 minutes
+default_duration = config.time_tracking.default_session_minutes  // 5 minutes
+```
 
-**Example**:
+**Step 4.2.1: Extract all timestamps**
+```python
+timestamps = []
+for message in conversation.messages:
+    if message.timestamp:
+        timestamps.append(parse_datetime(message.timestamp))
+
+if len(timestamps) < 2:
+    # No timestamps, use default
+    return default_duration
+```
+
+**Step 4.2.2: Calculate active time with idle threshold**
+```python
+active_time = 0  # in minutes
+
+for i in range(1, len(timestamps)):
+    gap = timestamps[i] - timestamps[i-1]
+    gap_minutes = gap.total_seconds() / 60
+
+    if gap_minutes <= idle_threshold:
+        # Full gap is active (thinking/researching/implementing)
+        active_time += gap_minutes
+    else:
+        # Cap at idle threshold, exclude rest
+        active_time += idle_threshold
+        # Implicit: gap_minutes - idle_threshold is excluded
+
+return active_time
+```
+
+**Example Calculation**:
 ```
 Message 1: 18:45:23
-Message 2: 18:46:15  → Gap: 52 seconds ✅ Active (52s)
-Message 3: 18:47:02  → Gap: 47 seconds ✅ Active (47s)
-Message 4: 19:25:30  → Gap: 38 minutes ⚠️  Active (30 min) + Idle (8 min excluded)
-Message 5: 19:26:00  → Gap: 30 seconds ✅ Active (30s)
-...
+Message 2: 18:46:15  → Gap: 52 seconds (0.87 min) ✅ Active
+Message 3: 18:47:02  → Gap: 47 seconds (0.78 min) ✅ Active
+Message 4: 19:25:30  → Gap: 38 minutes ⚠️  Cap at 30 min
+                        Active: 30 min
+                        Excluded: 8 min (idle)
+Message 5: 19:26:00  → Gap: 30 seconds (0.5 min) ✅ Active
+Message 6: 19:26:45  → Gap: 45 seconds (0.75 min) ✅ Active
 
-Total time span: 45 minutes
-Included time: 30 minutes (from gap) + other active time
-Excluded time: 8 minutes (beyond 30 min threshold)
-Active time: ~37 minutes
+Total active time = 0.87 + 0.78 + 30 + 0.5 + 0.75 = 32.9 minutes
+Total span = 41.4 minutes
+Excluded idle = 8 minutes
 ```
 
-**Estimated duration**: 37 minutes
+**Step 4.2.3: Allocate time to entities/tags**
 
-**Rationale**: Treats first 30 minutes of any gap as potentially active (user thinking, researching, implementing), but excludes extended idle time beyond that.
+```python
+# Determine how much each entity was discussed
+entity_prominence = {}
+
+for entity in extracted_entities:
+    # Count observations/mentions for this entity
+    mentions = count_entity_mentions(conversation, entity)
+    entity_prominence[entity] = mentions
+
+# Normalize to get percentages
+total_mentions = sum(entity_prominence.values())
+entity_percentages = {
+    entity: (mentions / total_mentions)
+    for entity, mentions in entity_prominence.items()
+}
+
+# Allocate time proportionally
+time_per_entity = {
+    entity: active_time * percentage
+    for entity, percentage in entity_percentages.items()
+}
+```
+
+**Example Time Allocation**:
+```yaml
+Total active time: 32.9 minutes
+Entities and their mentions:
+  FastAPI: 15 mentions (37.5%)
+  Neo4j: 10 mentions (25%)
+  JWT: 8 mentions (20%)
+  Python: 7 mentions (17.5%)
+
+Time allocation:
+  FastAPI: 12.3 minutes
+  Neo4j: 8.2 minutes
+  JWT: 6.6 minutes
+  Python: 5.8 minutes
+```
+
+**Rationale**:
+- First 30 minutes of any gap = potentially active (thinking, researching, implementing)
+- Beyond 30 minutes = idle (stepped away, different task)
+- Time allocated to tags based on discussion prominence
+- Enables accurate time tracking per concept
 
 **If no timestamps available**:
 - Use `default_session_minutes` from config (5 minutes)
+- Split evenly among all entities
 - Note as "estimated" in metadata
 
 ---
@@ -416,9 +500,13 @@ neo4j_get_entity({
 
 ---
 
-## Stage 6: Note Creation
+## Stage 6: Note Creation (DUAL SYSTEM)
 
-### Generate Conversation Note
+**CRITICAL**: Stage 6 now creates TWO types of notes:
+1. **Conversation Node** (Episodic memory) - Full transcript in processed folder
+2. **Tag Notes** (Semantic memory) - Concept summaries in area folders
+
+### Stage 6a: Generate Conversation Node (Episodic)
 
 **Use the conversation template** structure:
 
@@ -490,11 +578,12 @@ areas:
 {{FULL_CONVERSATION_CONTENT}}
 ```
 
-### Save to Appropriate Folder
+### Save Conversation Node to Processed Folder
 
-**Determine folder** based on primary area:
-- If area is "Technology > Programming": Save to `10-Projects/technology/programming/`
-- If general: Save to `00-Inbox/processed/`
+**IMPORTANT**: Conversation nodes ALWAYS go to `00-Inbox/processed/` folder
+- This is the episodic memory location
+- Full conversation transcript preserved here
+- Never moved to area folders
 
 **Create the note** using Write tool:
 ```javascript
@@ -502,6 +591,139 @@ Write({
   file_path: "C:/Obsidian-memory-vault/00-Inbox/processed/conversation_20251107_001.md",
   content: {{FULL_NOTE_CONTENT}}
 })
+```
+
+---
+
+### Stage 6b: Create/Update Tag Notes (Semantic)
+
+**For EACH entity extracted in Stage 1**, create or update a tag note:
+
+**Step 6b.1: Determine Tag Note Location**
+
+Use the tag's path from tag-taxonomy to determine folder:
+```python
+tag_info = tag_taxonomy[entity_name]
+path = tag_info['path']  # e.g., "Technology > Programming > Languages > Python"
+root = tag_info['root']   # e.g., "Technology"
+
+# Convert to folder path
+folder = path.replace(" > ", "/")
+# Result: "Technology/Programming/Languages/Python"
+
+tag_note_path = f"C:/Obsidian-memory-vault/{folder}/{entity_name}.md"
+```
+
+**Step 6b.2: Check if Tag Note Exists**
+
+```javascript
+try {
+  existing_note = Read(tag_note_path)
+  // Tag note exists, UPDATE it
+} catch {
+  // Tag note doesn't exist, CREATE it
+}
+```
+
+**Step 6b.3a: Create New Tag Note (If Doesn't Exist)**
+
+Use template from `_system/tag-note-template.md`:
+
+```yaml
+---
+type: tag-note
+tag: fastapi
+canonical: "fastapi"
+parent_tags: [python, web-frameworks, frameworks]
+root: Technology
+path: "Technology > Programming > Languages > Python > Frameworks > Web > FastAPI"
+created: 2025-11-11
+last_updated: 2025-11-11
+total_conversations: 1
+total_time_minutes: 24
+---
+
+# FastAPI
+
+## Current Understanding
+
+FastAPI is a modern Python web framework for building APIs with automatic documentation and type validation.
+
+## Recent Updates
+
+### 2025-11-09 (Conversation: [[conversation_20251109_fastapi-neo4j-integration]])
+- Integrated with Neo4j graph database
+- Implemented JWT authentication
+- Used async/await patterns for database connections
+
+## Monthly Summary (November 2025)
+
+*To be generated at end of month*
+
+## Related Tags
+
+- [[python]] - Parent language
+- [[neo4j]] - Frequently used together
+- [[jwt]] - Authentication method
+
+## Statistics
+
+- **Total Conversations**: 1
+- **Total Time Spent**: 24 minutes
+- **First Mentioned**: 2025-11-09
+- **Last Updated**: 2025-11-09
+- **Neo4j Node ID**: entity_fastapi_001
+
+## All Conversations
+
+- [[conversation_20251109_fastapi-neo4j-integration]] - 2025-11-09 - FastAPI + Neo4j integration with JWT auth
+```
+
+**Step 6b.3b: Update Existing Tag Note (If Exists)**
+
+Parse existing note and add new entry:
+
+```javascript
+// Read existing note
+existing = Read(tag_note_path)
+
+// Extract frontmatter
+frontmatter = parse_yaml_frontmatter(existing)
+
+// Update statistics
+frontmatter.total_conversations += 1
+frontmatter.total_time_minutes += current_conversation_duration
+frontmatter.last_updated = today
+
+// Add new update entry to "Recent Updates" section
+new_update = `
+### ${date} (Conversation: [[${conversation_file}]])
+- ${observation_1}
+- ${observation_2}
+- ${observation_3}
+`
+
+// Insert after "## Recent Updates" section
+updated_content = insert_after_section(existing, "## Recent Updates", new_update)
+
+// Write back
+Write(tag_note_path, updated_content)
+```
+
+**Step 6b.4: Repeat for All Entities**
+
+Process each entity extracted in Stage 1:
+- FastAPI → Update/Create tag note
+- Neo4j → Update/Create tag note
+- JWT → Update/Create tag note
+- Python → Update/Create tag note
+- ... for all entities
+
+**Step 6b.5: Create Folders If Needed**
+
+```bash
+# If path doesn't exist, create it
+mkdir -p "Technology/Programming/Languages/Python/Frameworks/Web"
 ```
 
 ---
@@ -613,6 +835,126 @@ cat C:/Obsidian-memory-vault/_system/processing-queue.md
    - Duration: 7 minutes
    - Related notes updated: 3
 ```
+
+### Signal Completion and Stop Agent
+
+**CRITICAL - NEW REQUIREMENT**:
+
+After all stages complete successfully, agent MUST signal completion and exit:
+
+```bash
+# Write completion signal for file watcher
+echo "COMPLETED:$(date -Iseconds)" > C:/Obsidian-memory-vault/_system/agent_completion_signal.txt
+```
+
+**Agent must then EXIT**:
+```python
+import sys
+print("✅ Pipeline complete. Agent stopping.")
+sys.exit(0)
+```
+
+**Purpose**:
+- File watcher monitors this signal
+- Triggers embedding script after agent stops
+- Prevents agent from running indefinitely
+- Clean resource management
+
+**Failure to exit = FAILED finalization**
+
+---
+
+## Stage 9: Monthly Consolidation (CONDITIONAL)
+
+**Trigger**: Only runs on last day of month OR when manually triggered
+
+**Purpose**: Generate holistic monthly summaries for all tag notes with cross-tag references
+
+### Check if Monthly Consolidation Needed
+
+```python
+from datetime import datetime, timedelta
+
+today = datetime.now()
+tomorrow = today + timedelta(days=1)
+
+is_last_day = tomorrow.month != today.month
+
+if not is_last_day:
+    # Not last day, skip Stage 9
+    skip_to_finalization()
+```
+
+### If Last Day of Month: Run Consolidation
+
+**Step 9.1: Trigger monthly consolidation script**
+
+```bash
+python C:/Obsidian-memory-vault/scripts/monthly_consolidation.py --vault C:/Obsidian-memory-vault
+```
+
+**What the script does**:
+1. Finds all tag notes in vault
+2. For each tag note:
+   - Extracts all updates from current month
+   - Finds related tags (co-mentioned, linked)
+   - Generates holistic summary with cross-references
+   - Compresses older daily entries
+3. Updates all tag notes
+
+**Step 9.2: Wait for consolidation to complete**
+
+Script will output:
+```
+[✓] Consolidation complete
+    Processed: 35/35 tag notes
+```
+
+**Step 9.3: Verify summaries created**
+
+- Check a few tag notes have new monthly summary section
+- Format: `## Monthly Summary (November 2025)`
+- Contains cross-tag [[wikilinks]]
+- Older daily entries compressed
+
+### Monthly Summary Format
+
+```markdown
+## Monthly Summary (November 2025)
+
+This month's work with **FastAPI** spanned 8 conversation(s).
+
+**Key developments:**
+- Integrated with Neo4j graph database
+- Implemented JWT authentication patterns
+- Explored async/await best practices
+- Built knowledge management API
+- Optimized database connection pooling
+
+**Related explorations:**
+- [[neo4j]] - Primary integration target
+- [[python]] - Core language
+- [[jwt]] - Authentication method
+- [[async-programming]] - Concurrency patterns
+- [[pydantic]] - Data validation
+
+**Key insight**: Graph databases like Neo4j pair naturally with modern async frameworks like FastAPI for building knowledge management systems.
+```
+
+### Benefits of Monthly Consolidation
+
+✅ **Holistic understanding** - Synthesizes month of learning into coherent narrative
+✅ **Cross-tag connections** - Explicit [[wikilinks]] reveal relationships
+✅ **Reduced clutter** - Compresses old daily entries while preserving detail
+✅ **Knowledge synthesis** - Monthly reflection on progress
+✅ **Obsidian navigation** - Follow [[links]] to explore related concepts
+
+### Error Handling
+
+If consolidation fails:
+- Log error but continue pipeline
+- Tag notes remain in pre-consolidation state
+- Can manually run script later
 
 ---
 

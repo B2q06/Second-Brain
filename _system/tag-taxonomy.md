@@ -72,261 +72,485 @@ Tags use `/` separator for hierarchy:
 ### Programming Languages
 ```yaml
 python:
+  canonical: "python"
   aliases: [py, python3]
+  parent_tags: [programming-languages, programming]
+  root: Technology
   category: tech/programming
+  depth: 3
+  path: "Technology > Programming > Languages > Python"
   description: Python programming language
 
 javascript:
+  canonical: "javascript"
   aliases: [js, node, nodejs]
+  parent_tags: [programming-languages, programming]
+  root: Technology
   category: tech/programming
+  depth: 3
+  path: "Technology > Programming > Languages > JavaScript"
   description: JavaScript/Node.js
 
 typescript:
+  canonical: "typescript"
   aliases: [ts]
+  parent_tags: [programming-languages, programming, javascript]
+  root: Technology
   category: tech/programming
+  depth: 4
+  path: "Technology > Programming > Languages > JavaScript > TypeScript"
   description: TypeScript language
 
 rust:
+  canonical: "rust"
   aliases: [rs]
+  parent_tags: [programming-languages, programming]
+  root: Technology
   category: tech/programming
+  depth: 3
+  path: "Technology > Programming > Languages > Rust"
   description: Rust language
 
 go:
+  canonical: "go"
   aliases: [golang]
+  parent_tags: [programming-languages, programming]
+  root: Technology
   category: tech/programming
+  depth: 3
+  path: "Technology > Programming > Languages > Go"
   description: Go language
 
 java:
+  canonical: "java"
   aliases: []
+  parent_tags: [programming-languages, programming]
+  root: Technology
   category: tech/programming
+  depth: 3
+  path: "Technology > Programming > Languages > Java"
   description: Java language
 
 csharp:
+  canonical: "csharp"
   aliases: [c#, dotnet]
+  parent_tags: [programming-languages, programming]
+  root: Technology
   category: tech/programming
+  depth: 3
+  path: "Technology > Programming > Languages > C#"
   description: C# and .NET
 
 cpp:
+  canonical: "cpp"
   aliases: [c++, cplusplus]
+  parent_tags: [programming-languages, programming]
+  root: Technology
   category: tech/programming
+  depth: 3
+  path: "Technology > Programming > Languages > C++"
   description: C++ language
 
 c:
+  canonical: "c"
   aliases: []
+  parent_tags: [programming-languages, programming]
+  root: Technology
   category: tech/programming
+  depth: 3
+  path: "Technology > Programming > Languages > C"
   description: C language
 
 bash:
+  canonical: "bash"
   aliases: [shell, sh]
+  parent_tags: [programming-languages, scripting, programming]
+  root: Technology
   category: tech/programming
+  depth: 4
+  path: "Technology > Programming > Scripting > Shell > Bash"
   description: Bash scripting
 ```
 
 ### Frameworks & Libraries
 ```yaml
 fastapi:
+  canonical: "fastapi"
   aliases: [fast-api]
+  parent_tags: [python, web-frameworks, frameworks]
+  root: Technology
   category: tech/programming
-  parent: python
+  depth: 5
+  path: "Technology > Programming > Languages > Python > Frameworks > Web > FastAPI"
   description: FastAPI Python web framework
 
 react:
+  canonical: "react"
   aliases: [reactjs]
+  parent_tags: [javascript, frontend-frameworks, frameworks]
+  root: Technology
   category: tech/programming
-  parent: javascript
+  depth: 5
+  path: "Technology > Programming > Languages > JavaScript > Frameworks > Frontend > React"
   description: React library
 
 django:
+  canonical: "django"
   aliases: []
+  parent_tags: [python, web-frameworks, frameworks]
+  root: Technology
   category: tech/programming
-  parent: python
+  depth: 5
+  path: "Technology > Programming > Languages > Python > Frameworks > Web > Django"
   description: Django web framework
 
 nextjs:
+  canonical: "nextjs"
   aliases: [next, next.js]
+  parent_tags: [javascript, react, frontend-frameworks, frameworks]
+  root: Technology
   category: tech/programming
-  parent: [javascript, react]
+  depth: 6
+  path: "Technology > Programming > Languages > JavaScript > Frameworks > Frontend > React > Next.js"
   description: Next.js React framework
 
 flask:
+  canonical: "flask"
   aliases: []
+  parent_tags: [python, web-frameworks, frameworks]
+  root: Technology
   category: tech/programming
-  parent: python
+  depth: 5
+  path: "Technology > Programming > Languages > Python > Frameworks > Web > Flask"
   description: Flask web framework
 
 express:
+  canonical: "express"
   aliases: [expressjs]
+  parent_tags: [javascript, backend-frameworks, frameworks]
+  root: Technology
   category: tech/programming
-  parent: javascript
+  depth: 5
+  path: "Technology > Programming > Languages > JavaScript > Frameworks > Backend > Express"
   description: Express.js framework
 
 vue:
+  canonical: "vue"
   aliases: [vuejs]
+  parent_tags: [javascript, frontend-frameworks, frameworks]
+  root: Technology
   category: tech/programming
-  parent: javascript
+  depth: 5
+  path: "Technology > Programming > Languages > JavaScript > Frameworks > Frontend > Vue"
   description: Vue.js framework
 
 angular:
+  canonical: "angular"
   aliases: []
+  parent_tags: [javascript, frontend-frameworks, frameworks]
+  root: Technology
   category: tech/programming
-  parent: javascript
+  depth: 5
+  path: "Technology > Programming > Languages > JavaScript > Frameworks > Frontend > Angular"
   description: Angular framework
 
 svelte:
+  canonical: "svelte"
   aliases: []
+  parent_tags: [javascript, frontend-frameworks, frameworks]
+  root: Technology
   category: tech/programming
-  parent: javascript
+  depth: 5
+  path: "Technology > Programming > Languages > JavaScript > Frameworks > Frontend > Svelte"
   description: Svelte framework
 
 pytorch:
+  canonical: "pytorch"
   aliases: []
+  parent_tags: [python, ml-frameworks, frameworks, machine-learning]
+  root: Technology
   category: tech/programming
-  parent: python
+  depth: 6
+  path: "Technology > Programming > Languages > Python > Frameworks > Machine Learning > PyTorch"
   description: PyTorch ML framework
 
 tensorflow:
+  canonical: "tensorflow"
   aliases: [tf]
+  parent_tags: [python, ml-frameworks, frameworks, machine-learning]
+  root: Technology
   category: tech/programming
-  parent: python
+  depth: 6
+  path: "Technology > Programming > Languages > Python > Frameworks > Machine Learning > TensorFlow"
   description: TensorFlow ML framework
 ```
 
 ### Infrastructure & Tools
 ```yaml
 docker:
+  canonical: "docker"
   aliases: [containers]
+  parent_tags: [containerization, infrastructure, devops]
+  root: Technology
   category: tech/infrastructure
+  depth: 4
+  path: "Technology > Infrastructure > DevOps > Containerization > Docker"
   description: Docker containerization
 
 kubernetes:
+  canonical: "kubernetes"
   aliases: [k8s]
+  parent_tags: [orchestration, containerization, infrastructure, devops]
+  root: Technology
   category: tech/infrastructure
+  depth: 5
+  path: "Technology > Infrastructure > DevOps > Containerization > Orchestration > Kubernetes"
   description: Kubernetes orchestration
 
 git:
+  canonical: "git"
   aliases: [github, gitlab, gitea]
+  parent_tags: [version-control, tools, devops]
+  root: Technology
   category: tech/tools
+  depth: 4
+  path: "Technology > Tools > DevOps > Version Control > Git"
   description: Version control
 
 nginx:
+  canonical: "nginx"
   aliases: []
+  parent_tags: [web-servers, infrastructure, servers]
+  root: Technology
   category: tech/infrastructure
+  depth: 4
+  path: "Technology > Infrastructure > Servers > Web Servers > Nginx"
   description: Nginx web server
 
 apache:
+  canonical: "apache"
   aliases: []
+  parent_tags: [web-servers, infrastructure, servers]
+  root: Technology
   category: tech/infrastructure
+  depth: 4
+  path: "Technology > Infrastructure > Servers > Web Servers > Apache"
   description: Apache web server
 
 terraform:
+  canonical: "terraform"
   aliases: []
+  parent_tags: [iac, infrastructure, devops]
+  root: Technology
   category: tech/infrastructure
+  depth: 4
+  path: "Technology > Infrastructure > DevOps > IaC > Terraform"
   description: Terraform IaC
 
 ansible:
+  canonical: "ansible"
   aliases: []
+  parent_tags: [automation, infrastructure, devops]
+  root: Technology
   category: tech/infrastructure
+  depth: 4
+  path: "Technology > Infrastructure > DevOps > Automation > Ansible"
   description: Ansible automation
 
 ci-cd:
+  canonical: "ci-cd"
   aliases: [cicd, ci/cd, continuous-integration]
+  parent_tags: [automation, devops, infrastructure]
+  root: Technology
   category: tech/infrastructure
+  depth: 4
+  path: "Technology > Infrastructure > DevOps > Automation > CI/CD"
   description: CI/CD pipelines
 
 linux:
+  canonical: "linux"
   aliases: [unix]
+  parent_tags: [operating-systems, tools]
+  root: Technology
   category: tech/tools
+  depth: 3
+  path: "Technology > Tools > Operating Systems > Linux"
   description: Linux operating system
 
 windows:
+  canonical: "windows"
   aliases: []
+  parent_tags: [operating-systems, tools]
+  root: Technology
   category: tech/tools
+  depth: 3
+  path: "Technology > Tools > Operating Systems > Windows"
   description: Windows operating system
 
 macos:
+  canonical: "macos"
   aliases: [mac, osx]
+  parent_tags: [operating-systems, tools]
+  root: Technology
   category: tech/tools
+  depth: 3
+  path: "Technology > Tools > Operating Systems > macOS"
   description: macOS operating system
 ```
 
 ### Databases
 ```yaml
 postgres:
+  canonical: "postgres"
   aliases: [postgresql, psql]
+  parent_tags: [relational-databases, databases, data-storage]
+  root: Technology
   category: tech/databases
+  depth: 4
+  path: "Technology > Data > Databases > Relational > PostgreSQL"
   description: PostgreSQL database
 
 mysql:
+  canonical: "mysql"
   aliases: []
+  parent_tags: [relational-databases, databases, data-storage]
+  root: Technology
   category: tech/databases
+  depth: 4
+  path: "Technology > Data > Databases > Relational > MySQL"
   description: MySQL database
 
 mongodb:
+  canonical: "mongodb"
   aliases: [mongo]
+  parent_tags: [nosql-databases, databases, data-storage]
+  root: Technology
   category: tech/databases
+  depth: 5
+  path: "Technology > Data > Databases > NoSQL > Document > MongoDB"
   description: MongoDB NoSQL database
 
 redis:
+  canonical: "redis"
   aliases: []
+  parent_tags: [nosql-databases, databases, data-storage, caching]
+  root: Technology
   category: tech/databases
+  depth: 5
+  path: "Technology > Data > Databases > NoSQL > Key-Value > Redis"
   description: Redis in-memory store
 
 sqlite:
+  canonical: "sqlite"
   aliases: []
+  parent_tags: [relational-databases, databases, data-storage, embedded]
+  root: Technology
   category: tech/databases
+  depth: 5
+  path: "Technology > Data > Databases > Relational > Embedded > SQLite"
   description: SQLite embedded database
 
 neo4j:
+  canonical: "neo4j"
   aliases: []
+  parent_tags: [graph-databases, nosql-databases, databases, data-storage]
+  root: Technology
   category: tech/databases
+  depth: 5
+  path: "Technology > Data > Databases > NoSQL > Graph > Neo4j"
   description: Neo4j graph database
 
 elasticsearch:
+  canonical: "elasticsearch"
   aliases: [elastic]
+  parent_tags: [search-engines, nosql-databases, databases, data-storage]
+  root: Technology
   category: tech/databases
+  depth: 5
+  path: "Technology > Data > Databases > NoSQL > Search > Elasticsearch"
   description: Elasticsearch search engine
 
 dynamodb:
+  canonical: "dynamodb"
   aliases: []
+  parent_tags: [nosql-databases, databases, data-storage, cloud, aws]
+  root: Technology
   category: tech/databases
+  depth: 6
+  path: "Technology > Data > Databases > NoSQL > Document > Cloud > DynamoDB"
   description: AWS DynamoDB
 ```
 
 ### Cloud Providers
 ```yaml
 aws:
+  canonical: "aws"
   aliases: [amazon-web-services]
+  parent_tags: [cloud-providers, cloud, infrastructure]
+  root: Technology
   category: tech/cloud
+  depth: 3
+  path: "Technology > Infrastructure > Cloud > AWS"
   description: Amazon Web Services
 
 azure:
+  canonical: "azure"
   aliases: [microsoft-azure]
+  parent_tags: [cloud-providers, cloud, infrastructure]
+  root: Technology
   category: tech/cloud
+  depth: 3
+  path: "Technology > Infrastructure > Cloud > Azure"
   description: Microsoft Azure
 
 gcp:
+  canonical: "gcp"
   aliases: [google-cloud, google-cloud-platform]
+  parent_tags: [cloud-providers, cloud, infrastructure]
+  root: Technology
   category: tech/cloud
+  depth: 3
+  path: "Technology > Infrastructure > Cloud > GCP"
   description: Google Cloud Platform
 
 digitalocean:
+  canonical: "digitalocean"
   aliases: [do]
+  parent_tags: [cloud-providers, cloud, infrastructure]
+  root: Technology
   category: tech/cloud
+  depth: 3
+  path: "Technology > Infrastructure > Cloud > DigitalOcean"
   description: DigitalOcean
 
 vercel:
+  canonical: "vercel"
   aliases: []
+  parent_tags: [hosting-platforms, cloud, infrastructure]
+  root: Technology
   category: tech/cloud
+  depth: 4
+  path: "Technology > Infrastructure > Cloud > Hosting > Vercel"
   description: Vercel hosting
 
 netlify:
+  canonical: "netlify"
   aliases: []
+  parent_tags: [hosting-platforms, cloud, infrastructure]
+  root: Technology
   category: tech/cloud
+  depth: 4
+  path: "Technology > Infrastructure > Cloud > Hosting > Netlify"
   description: Netlify hosting
 
 heroku:
+  canonical: "heroku"
   aliases: []
+  parent_tags: [paas, cloud-providers, cloud, infrastructure]
+  root: Technology
   category: tech/cloud
+  depth: 4
+  path: "Technology > Infrastructure > Cloud > PaaS > Heroku"
   description: Heroku platform
 ```
 
@@ -555,6 +779,117 @@ pandas:
 
 ---
 
+## NON-TECH DOMAIN EXAMPLES
+
+### Language & Linguistics
+```yaml
+chinese-grammar:
+  canonical: "chinese-grammar"
+  aliases: [mandarin-grammar, chinese-syntax]
+  parent_tags: [grammar, chinese-language, linguistics]
+  root: Language
+  category: language/grammar
+  depth: 4
+  path: "Language > Chinese > Grammar > Rules"
+  description: Chinese language grammatical rules and structures
+
+chinese-time-expressions:
+  canonical: "chinese-time-expressions"
+  aliases: [时间表达, time-words-chinese]
+  parent_tags: [chinese-grammar, grammar, chinese-language]
+  root: Language
+  category: language/grammar
+  depth: 5
+  path: "Language > Chinese > Grammar > Rules > Time Expressions"
+  description: Time-related expressions in Chinese (几点, 什么时候)
+
+pinyin:
+  canonical: "pinyin"
+  aliases: [chinese-romanization]
+  parent_tags: [writing-systems, chinese-language, linguistics]
+  root: Language
+  category: language/writing
+  depth: 4
+  path: "Language > Chinese > Writing Systems > Pinyin"
+  description: Romanization system for Mandarin Chinese
+
+hanzi:
+  canonical: "hanzi"
+  aliases: [chinese-characters, 汉字]
+  parent_tags: [writing-systems, chinese-language, linguistics]
+  root: Language
+  category: language/writing
+  depth: 4
+  path: "Language > Chinese > Writing Systems > Hanzi"
+  description: Chinese characters
+```
+
+### History
+```yaml
+ea-nasir:
+  canonical: "ea-nasir"
+  aliases: [copper-merchant-ea-nasir]
+  parent_tags: [historical-figures, mesopotamia, bronze-age, ancient-traders]
+  root: History
+  category: history/people
+  depth: 5
+  path: "History > Ancient > Bronze Age > Mesopotamia > Notable Figures > Ea-nasir"
+  description: Ancient Mesopotamian copper trader, known from complaint tablets
+
+dilmun-trading-guild:
+  canonical: "dilmun-trading-guild"
+  aliases: [dilmun-merchants, dilmun-traders]
+  parent_tags: [trading-organizations, dilmun, bronze-age, mesopotamian-trade]
+  root: History
+  category: history/organizations
+  depth: 6
+  path: "History > Ancient > Bronze Age > Mesopotamia > Trade > Organizations > Dilmun Trading Guild"
+  description: Bronze Age trading organization based in Dilmun
+
+mesopotamian-trade:
+  canonical: "mesopotamian-trade"
+  aliases: [ancient-mesopotamian-commerce, bronze-age-trade]
+  parent_tags: [ancient-trade, mesopotamia, bronze-age, economics]
+  root: History
+  category: history/economics
+  depth: 5
+  path: "History > Ancient > Bronze Age > Mesopotamia > Economics > Trade"
+  description: Trade systems and commerce in ancient Mesopotamia
+
+copper-trade:
+  canonical: "copper-trade"
+  aliases: [bronze-age-copper, copper-commerce]
+  parent_tags: [ancient-trade, bronze-age, metallurgy, resources]
+  root: History
+  category: history/economics
+  depth: 6
+  path: "History > Ancient > Bronze Age > Resources > Metals > Copper > Trade"
+  description: Copper trading in the Bronze Age
+```
+
+### Culture
+```yaml
+western-culture:
+  canonical: "western-culture"
+  aliases: [western-civilization]
+  parent_tags: [cultural-studies, world-cultures]
+  root: Culture
+  category: culture/regions
+  depth: 2
+  path: "Culture > Regions > Western"
+  description: Cultural traditions and practices of Western civilization
+
+eastern-culture:
+  canonical: "eastern-culture"
+  aliases: [eastern-civilization, asian-culture]
+  parent_tags: [cultural-studies, world-cultures]
+  root: Culture
+  category: culture/regions
+  depth: 2
+  path: "Culture > Regions > Eastern"
+  description: Cultural traditions and practices of Eastern civilizations
+```
+
 ## NOTES FOR AI AGENTS
 
 When processing conversations:
@@ -565,9 +900,13 @@ When processing conversations:
 5. **Propose to Tag Review Queue** when confidence < 0.60
 6. **Apply hierarchical tags** (category + specific)
 7. **Prefer existing tags** over creating new ones
-8. **Link to Graphiti entities** for cross-referencing
+8. **Support ANY domain** - not limited to technology
+9. **Infer appropriate root** (Technology, Language, History, Culture, Science, Art, etc.)
+10. **Link to Neo4j entities** for cross-referencing
 
 Remember: **Consistency > Completeness**. Better to use fewer tags consistently than many tags inconsistently.
+
+**CRITICAL**: This taxonomy supports flexible domains. If conversation discusses Chinese grammar, extract those entities. If it discusses Bronze Age trade, extract those. Don't force everything into Technology category.
 
 ---
 
