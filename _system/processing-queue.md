@@ -29,7 +29,7 @@ status: active
 **Total Size**: 1,951 bytes
 
 **Files**:
-- [ ] unprocessed_test_tech_fastapi_001.md
+- [x] unprocessed_test_tech_fastapi_001.md (COMPLETED)
 
 
 ### Batch Added: 2025-11-11T01:52:36.549820
@@ -39,7 +39,7 @@ status: active
 **Total Size**: 1,737 bytes
 
 **Files**:
-- [ ] unprocessed_test_history_bronze_age_001.md
+- [x] unprocessed_test_history_bronze_age_001.md (COMPLETED)
 
 
 ### Batch Added: 2025-11-11T01:52:21.011514
@@ -49,12 +49,12 @@ status: active
 **Total Size**: 1,493 bytes
 
 **Files**:
-- [ ] unprocessed_test_chinese_grammar_001.md
+- [x] unprocessed_test_chinese_grammar_001.md (COMPLETED)
 
 
 **Queue Status**: 0 files awaiting processing ✅
 
-**Last Check**: 2025-11-11T01:52:52.063520
+**Last Check**: 2025-11-11T02:30:00
 
 
 ### Batch Added: 2025-11-09T19:34:36.487021
@@ -74,6 +74,46 @@ status: active
 <!-- No files currently being processed -->
 
 ## Completed (Last 24 Hours)
+
+- [x] unprocessed_test_tech_fastapi_001.md
+  - **Completed**: 2025-11-11 02:30:00
+  - **Duration**: ~2 minutes
+  - **Entities Created**: 9 (FastAPI, Neo4j, JWT, Pydantic, OAuth2, Uvicorn, AsyncGraphDatabase, Python, Knowledge Management Systems)
+  - **Relationships Created**: 11
+  - **Tags Assigned**: 9 (technology/web-framework, technology/database, technology/security, programming/python, architecture/api)
+  - **Primary Area**: Technology > Programming > Python > Web Development > Backend API
+  - **Novelty Score**: 0.70 (Medium-High - similar to existing FastAPI content)
+  - **Status**: ✅ Success
+  - **Output**: C:\obsidian-memory-vault\00-Inbox\processed\conversation_20251111_fastapi_neo4j_knowledge_api.md
+  - **Note**: FastAPI + Neo4j + JWT knowledge API integration - async operations and authentication
+
+- [x] unprocessed_test_history_bronze_age_001.md
+  - **Completed**: 2025-11-11 02:30:00
+  - **Duration**: ~2 minutes
+  - **Entities Created**: 7 (Ea-nasir, Nanni, Bronze Age Copper Trade, Dilmun Trading Guild, Mesopotamia, Dilmun, Magan)
+  - **Relationships Created**: 11
+  - **Tags Assigned**: 7 (ea-nasir, dilmun-trading-guild, mesopotamian-trade, copper-trade, bronze-age, ancient-history, economic-history)
+  - **Primary Area**: History > Ancient > Bronze Age > Mesopotamia > Economics > Trade
+  - **Novelty Score**: 1.0 (High - completely new domain)
+  - **Status**: ✅ Success
+  - **Output**: C:\obsidian-memory-vault\00-Inbox\processed\conversation_20251111_bronze_age_copper_trade.md
+  - **Note**: First historical content - Bronze Age Mesopotamian trade networks and Ea-nasir complaint tablets
+  - **New Tags Proposed**: mesopotamian-economics, ancient-trading-networks, archaeological-evidence
+  - **New Area Proposed**: History > Ancient > Bronze Age > Trade Networks
+
+- [x] unprocessed_test_chinese_grammar_001.md
+  - **Completed**: 2025-11-11 02:30:00
+  - **Duration**: ~2 minutes
+  - **Entities Created**: 7 (Chinese Time Expressions, 几点, 什么时候, 哪天, Pinyin, Hanzi, Chinese Grammar)
+  - **Relationships Created**: 7
+  - **Tags Assigned**: 7 (chinese-grammar, chinese-time-expressions, pinyin, hanzi, mandarin, language-learning, sentence-structure)
+  - **Primary Area**: Language > Chinese > Grammar > Time Expressions
+  - **Novelty Score**: 1.0 (High - completely new domain)
+  - **Status**: ✅ Success
+  - **Output**: C:\obsidian-memory-vault\00-Inbox\processed\conversation_20251111_chinese_time_expressions.md
+  - **Note**: First language learning content - Chinese grammar rules for time expressions
+  - **New Tags Proposed**: mandarin-chinese, language-syntax, chinese-writing-systems
+  - **New Area Proposed**: Language > Chinese > Grammar
 
 - [x] processed_test_pipeline_20251109_001.md
   - **Completed**: 2025-11-09 22:00:00
