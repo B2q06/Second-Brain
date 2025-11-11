@@ -4,21 +4,25 @@
     "type": "split",
     "children": [
       {
-        "id": "ad2fd251eb04c8fa",
+        "id": "79c897598b0c83ef",
         "type": "tabs",
         "children": [
           {
-            "id": "f464e3af2bbc8e99",
+            "id": "b33c9735c0eb82a8",
             "type": "leaf",
             "state": {
-              "type": "smart-release-notes-view",
-              "state": {},
-              "icon": "file-text",
-              "title": "Release Notes"
+              "type": "markdown",
+              "state": {
+                "file": "README.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "README"
             }
           },
           {
-            "id": "8b6767ed91f0feff",
+            "id": "548ba6efc9b30994",
             "type": "leaf",
             "state": {
               "type": "graph",
@@ -60,7 +64,7 @@
             "state": {
               "type": "search",
               "state": {
-                "query": "tag:#project/planning",
+                "query": "tag:#devops",
                 "matchingCase": false,
                 "explainSearch": false,
                 "collapseAll": false,
@@ -101,6 +105,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "mcp/mcp-graphiti/README.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -110,7 +115,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks"
+              "title": "Backlinks for README"
             }
           },
           {
@@ -148,12 +153,13 @@
             "state": {
               "type": "outline",
               "state": {
+                "file": "mcp/mcp-graphiti/README.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline"
+              "title": "Outline of README"
             }
           },
           {
@@ -167,11 +173,11 @@
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 4
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 434.5
   },
   "left-ribbon": {
     "hiddenItems": {
@@ -184,47 +190,49 @@
       "bases:Create new base": false,
       "smart-connections:Open: Smart Chat": false,
       "smart-connections:Smart Connections: Open connections view": false,
-      "smart-connections:Smart Connections: Open random connection": true
+      "smart-connections:Smart Connections: Open random connection": false
     }
   },
-  "active": "b0a7895e37d62fa1",
+  "active": "548ba6efc9b30994",
   "lastOpenFiles": [
-    "mcp/smart-connections-mcp/TROUBLESHOOTING.md",
-    "Excalidraw/Untitled.canvas",
-    "mcp-graphiti/ai/graph/meta-graph-draft.md",
-    "Excalidraw",
-    "mcp/smart-connections-mcp/USAGE_GUIDE.md",
-    "mcp/smart-connections-mcp/test_search_clean.py",
-    "mcp/smart-connections-mcp/test_search.py",
-    "mcp/smart-connections-mcp/test_mcp.py",
-    "mcp/smart-connections-mcp/SETUP_GITHUB.md",
-    "mcp/smart-connections-mcp/requirements.txt",
-    "mcp/smart-connections-mcp/server.py",
-    "mcp/smart-connections-mcp/README.md",
-    "mcp/smart-connections-mcp/QUICK_ANSWERS.md",
-    "mcp/smart-connections-mcp/QUICKSTART.md",
-    "mcp/smart-connections-mcp/push-to-github.sh",
-    "mcp/smart-connections-mcp/FIX_SUMMARY.md",
-    "mcp/smart-connections-mcp/DEPLOYMENT.md",
-    "mcp/smart-connections-mcp/install.sh",
-    "mcp/smart-connections-mcp",
-    "mcp/mcp-graphiti/project_assets/rules/templates/schema_template.py",
-    "mcp/mcp-graphiti/project_assets/rules/examples/graphiti-example-schema.md",
-    "mcp/mcp-graphiti/project_assets/rules/graphiti-mcp-core-rules.md",
-    "mcp/mcp-graphiti/project_assets/rules/graphiti-knowledge-graph-maintenance.md",
-    "mcp/mcp-graphiti/entities/connectors/README.md",
-    "mcp/mcp-graphiti/ai/graph/meta-graph-draft.md",
-    "mcp/mcp-graphiti/tests/README.md",
-    "mcp/mcp-graphiti/docs/CONFIGURATION.md",
-    "mcp/mcp-graphiti/docs/MCP_TOOLS_USAGE.md",
-    "mcp/mcp-graphiti/docs/entity-design-example.md",
-    "mcp/mcp-graphiti/docs/INSTALL.md",
-    "mcp/mcp-graphiti/docs/graphiti-core-principles.md",
-    "mcp/mcp-graphiti/docs/entity-design-guidelines.md",
+    "planning/merge-plan.md",
+    "planning",
+    "Untitled 1.canvas",
+    "Untitled.canvas",
+    "2025-11-10.md",
+    "00-Inbox/processed/conversation_20251109_neo4j_mcp_integration.md",
+    "60-Jots/Titles for the empire.md",
+    "README.md",
+    "60-Jots",
+    "Financial Markets.md",
+    "Tag Review Queue.md",
+    "_system/CRITICAL_FIX_APPLIED.md",
+    "_system/CRITICAL_FIX_APPLIED.md.tmp.26356.1762745257869",
+    "_system/processing-queue.md.tmp.48376.1762744994191",
+    "_system/processing-queue.md.tmp.48376.1762744993444",
+    "_system/processing-queue.md.tmp.48376.1762744992689",
+    "00-Inbox/raw-conversations/processed_test_pipeline_20251109_001.md",
+    "00-Inbox/processed/conversation_20251109_neo4j_fastapi_integration.md",
+    "00-Inbox/processed/conversation_20251109_neo4j_fastapi_integration.md.tmp.48376.1762744950158",
+    "_system/new-areas-queue.md.tmp.48376.1762744869361",
+    "_system/new-areas-queue.md.tmp.48376.1762744847327",
+    "_system/SETUP_COMPLETION_SUMMARY.md",
+    "_system/SETUP_COMPLETION_SUMMARY.md.tmp.26356.1762744776697",
+    "00-Inbox/raw-conversations/processing_test_pipeline_20251109_001.md",
+    "00-Inbox/raw-conversations/unprocessed_test_pipeline_20251109_001.md",
+    "_system/mcp-tools-reference.md",
     "mcp/mcp-graphiti/README.md",
-    "00-Inbox/raw-conversations/processed_conversation_20251109_0101_001.md",
-    "smart-connections-mcp/USAGE_GUIDE.md",
-    "smart-connections-mcp/TROUBLESHOOTING.md",
-    "Untitled.canvas"
+    "mcp/mcp-graphiti/ai/graph/meta-graph-draft.md",
+    "00-Inbox/processed/conversation_20251109_test_pipeline_001.md",
+    "Neo4j.md",
+    "00-Inbox/raw-conversations/processed_test_realtime_002.md",
+    "00-Inbox/processed/conversation_20251109_ml_classification_pipeline.md",
+    "00-Inbox/raw-conversations/processing_test_realtime_002.md",
+    "00-Inbox/raw-conversations/unprocessed_test_realtime_002.md",
+    "_system/SETUP_COMPLETE_README.md",
+    "_system/COMPLETE_PROCESSING_ARCHITECTURE.md",
+    "00-Inbox/raw-conversations/processed_test_pipeline_001.md",
+    "00-Inbox/raw-conversations/processing_test_pipeline_001.md",
+    "Excalidraw/Untitled.canvas"
   ]
 }

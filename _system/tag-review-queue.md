@@ -16,6 +16,130 @@ status: active
 
 <!-- AI will add proposals below this line -->
 
+### 2025-11-09 - Proposed Tag: `scikit-learn`
+
+**Proposed by**: AI Agent (processing conversation: processing_test_realtime_002.md)
+**Confidence**: 0.95
+**Times encountered**: 1
+**Category**: tech/programming
+**Parent**: python
+
+**Similar existing tags**:
+- `tensorflow` (similarity: 0.65 - both ML frameworks)
+- `pytorch` (similarity: 0.68 - both ML frameworks)
+
+**Context/Usage**:
+Found in conversations about: Machine learning classification, traditional ML algorithms
+
+**Recommendation**:
+- [x] **Approve** - Add to taxonomy as new tag (major Python ML library)
+- Suggested aliases: [sklearn, scikit, sk-learn]
+
+**Human Decision**: [To be filled]
+
+---
+
+### 2025-11-09 - Proposed Tag: `numpy`
+
+**Proposed by**: AI Agent (processing conversation: processing_test_realtime_002.md)
+**Confidence**: 0.95
+**Times encountered**: 1
+**Category**: tech/programming
+**Parent**: python
+
+**Similar existing tags**: None
+
+**Context/Usage**:
+Found in conversations about: Numerical computations, data science foundations
+
+**Recommendation**:
+- [x] **Approve** - Add to taxonomy as new tag (fundamental Python library)
+- Suggested aliases: [np]
+
+**Human Decision**: [To be filled]
+
+---
+
+### 2025-11-09 - Proposed Tag: `pandas`
+
+**Proposed by**: AI Agent (processing conversation: processing_test_realtime_002.md)
+**Confidence**: 0.95
+**Times encountered**: 1
+**Category**: tech/programming
+**Parent**: python
+
+**Similar existing tags**: None
+
+**Context/Usage**:
+Found in conversations about: Data manipulation, data preprocessing
+
+**Recommendation**:
+- [x] **Approve** - Add to taxonomy as new tag (core data science library)
+- Suggested aliases: [pd]
+
+**Human Decision**: [To be filled]
+
+---
+
+### 2025-11-09 - Proposed Tag: `jupyter`
+
+**Proposed by**: AI Agent (processing conversation: processing_test_realtime_002.md)
+**Confidence**: 0.95
+**Times encountered**: 1
+**Category**: tech/tools
+
+**Similar existing tags**: None
+
+**Context/Usage**:
+Found in conversations about: Interactive development, data science notebooks
+
+**Recommendation**:
+- [x] **Approve** - Add to taxonomy as new tag (primary data science IDE)
+- Suggested aliases: [jupyter-notebook, jupyterlab]
+
+**Human Decision**: [To be filled]
+
+---
+
+### 2025-11-09 - Proposed Tag: `mlflow`
+
+**Proposed by**: AI Agent (processing conversation: processing_test_realtime_002.md)
+**Confidence**: 0.90
+**Times encountered**: 1
+**Category**: tech/tools
+
+**Similar existing tags**: None
+
+**Context/Usage**:
+Found in conversations about: Experiment tracking, model registry, ML operations
+
+**Recommendation**:
+- [x] **Approve** - Add to taxonomy as new tag (ML experiment tracking platform)
+
+**Human Decision**: [To be filled]
+
+---
+
+### 2025-11-09 - Proposed Tag: `machine-learning`
+
+**Proposed by**: AI Agent (processing conversation: processing_test_realtime_002.md)
+**Confidence**: 0.95
+**Times encountered**: 1
+**Category**: domain/data
+
+**Similar existing tags**: None
+
+**Context/Usage**:
+Found in conversations about: ML model development, classification, training
+
+**Recommendation**:
+- [x] **Approve** - Add to taxonomy as new tag (major domain category)
+- Suggested aliases: [ml, machine-learning]
+
+**Human Decision**: [To be filled]
+
+---
+
 ---
 
 ## Review Template
@@ -104,13 +228,13 @@ Example mentions:
 
 ## Statistics
 
-**Total proposals**: 0
+**Total proposals**: 6
 **Approved**: 0
 **Rejected**: 0
-**Pending**: 0
+**Pending**: 6
 **Average review time**: N/A
 
-Last updated: 2025-11-07
+Last updated: 2025-11-09
 
 ---
 

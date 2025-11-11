@@ -7,6 +7,7 @@
 # ------------------------------------------------
 # Exclude all conversation files to protect personal data
 00-Inbox/raw-conversations/
+00-Inbox/processed/
 **/conversation-*.md
 **/unprocessed_*.md
 **/processed_*.md
@@ -104,6 +105,13 @@ $RECYCLE.BIN/
 .env.*.local
 secrets.json
 credentials.json
+
+# Testing files (may contain credentials)
+testing/
+*.bat
+
+# MCP server directories (external dependencies)
+mcp/
 
 # ------------------------------------------------
 # Other

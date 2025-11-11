@@ -201,6 +201,33 @@ neo4j_create_relationship({
 
 ## Stage 2: Tag Assignment
 
+### Understanding Obsidian Tags
+
+**Two types of tags exist in Obsidian:**
+
+1. **Frontmatter tags** (YAML):
+   ```yaml
+   ---
+   tags:
+     - python
+     - neo4j
+   ---
+   ```
+
+2. **Inline hashtags** (in content):
+   ```markdown
+   Working with #Neo4j and #Python today.
+   ```
+
+**To extract all tags from the vault:**
+- Use `Grep` to find hashtags: `grep -r "#\w+" --include="*.md"`
+- Use `Read` to parse frontmatter YAML
+- Both types are valid and should be considered
+
+**When assigning tags to new notes:**
+- Always use frontmatter tags (more structured)
+- Optionally add inline hashtags for emphasis
+
 ### Load Tag Taxonomy
 
 **Read**:

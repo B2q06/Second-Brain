@@ -400,6 +400,13 @@ class ConversationFileHandler(FileSystemEventHandler):
             print("    Real-time status updates will appear below")
             print(f"    (Agent will process through 8-stage pipeline with max 30 turns)")
 
+            # Start thread to wait for agent completion and trigger embedding
+            threading.Thread(
+                target=self._wait_and_embed,
+                args=(process, vault_dir),
+                daemon=True
+            ).start()
+
         except FileNotFoundError:
             print("[X] Claude executable not found at expected path")
             print("    Expected: C:\\Users\\bearj\\AppData\\Roaming\\npm\\claude.cmd")
@@ -408,6 +415,57 @@ class ConversationFileHandler(FileSystemEventHandler):
         except Exception as e:
             print(f"[X] Error spawning agent: {e}")
             print("    You can manually run: claude 'Use processing-pipeline-agent'")
+
+    def _wait_and_embed(self, process, vault_dir):
+        """Wait for agent to complete, then trigger embedding of new notes."""
+        try:
+            # Wait for agent process to complete
+            return_code = process.wait()
+
+            print(f"\n{'─'*60}")
+            print(f"[i] Agent completed with return code: {return_code}")
+            print(f"{'─'*60}\n")
+
+            # Trigger embedding of newly created processed notes
+            print("[~] Embedding new processed notes with Ollama...")
+            print("    Model: nomic-embed-text:latest")
+            print("    Target: 00-Inbox/processed/\n")
+
+            embed_script = vault_dir / "scripts" / "embed_notes_ollama.py"
+
+            # Run embedding script
+            embed_process = subprocess.run(
+                [
+                    sys.executable,  # Use same Python interpreter
+                    str(embed_script),
+                    "--vault", str(vault_dir),
+                    "--folder", "00-Inbox/processed"
+                ],
+                cwd=str(vault_dir),
+                capture_output=True,
+                text=True,
+                timeout=600  # 10 minute timeout for embedding
+            )
+
+            if embed_process.returncode == 0:
+                print(f"[OK] Embedding complete!")
+                # Parse output for statistics
+                if "Files processed:" in embed_process.stdout:
+                    # Extract stats from output
+                    for line in embed_process.stdout.split('\n'):
+                        if any(key in line for key in ["Files processed:", "Files skipped:", "Chunks embedded:"]):
+                            print(f"    {line.strip()}")
+            else:
+                print(f"[X] Embedding failed with return code: {embed_process.returncode}")
+                if embed_process.stderr:
+                    print(f"    Error: {embed_process.stderr}")
+
+        except subprocess.TimeoutExpired:
+            print("[X] Embedding timed out after 10 minutes")
+        except Exception as e:
+            print(f"[X] Error during embedding: {e}")
+            import traceback
+            traceback.print_exc()
 
 
 def main():
