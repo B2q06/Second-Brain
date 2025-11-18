@@ -369,52 +369,204 @@ class ConversationFileHandler(FileSystemEventHandler):
             traceback.print_exc()
 
     def spawn_processing_agent(self):
-        """Spawn the processing-pipeline-agent to handle queued files."""
+        """Open Claude Code terminal for manual activation (simple & reliable)."""
+        vault_dir = self.raw_conversations_path.parent.parent
+
+        print(f"\n{'='*60}")
+        print(f"[!] NEW CONVERSATIONS READY")
+        print(f"{'='*60}\n")
+
+        # Open Claude in terminal (no automation, just open it)
+        cmd = [
+            'wt.exe', '-w', '-1', '--title', 'Claude - Process Queue',
+            '--', 'cmd.exe', '/k',
+            f'cd /d "{vault_dir}" && claude --dangerously-skip-permissions'
+        ]
+
+        subprocess.Popen(cmd)
+
+        print(f"[+] Claude opened in: {vault_dir}")
+        print(f"\n[i] In the Claude terminal, type:")
+        print(f"      file watcher summons you")
+        print(f"\n{'='*60}\n")
+
+        # Beep to alert
         try:
-            print("\n[~] Spawning processing-pipeline-agent...")
+            import winsound
+            winsound.MessageBeep()
+        except:
+            pass
 
-            # Change to vault directory for agent context
-            vault_dir = self.raw_conversations_path.parent.parent
+        # Monitor for completion
+        threading.Thread(target=self._wait_for_signal, args=(vault_dir,), daemon=True).start()
 
-            cmd = [
-                r'C:\Users\bearj\AppData\Roaming\npm\claude.cmd',  # Full path to claude
-                '-p',  # Headless/print mode
-                'Use the processing-pipeline-agent subagent to process all files in the queue.',
-                '--output-format', 'json',
-                '--max-turns', '30',  # Allow enough turns for full pipeline
-                '--permission-mode', 'bypassPermissions'  # Auto-approve file operations
-            ]
+    def spawn_processing_agent_simple(self):
+        """Simple version - just open Claude, user types activation."""
+        vault_dir = self.raw_conversations_path.parent.parent
 
-            # Run agent in background (non-blocking)
-            # Use DEVNULL to prevent buffer hang issues
-            process = subprocess.Popen(
-                cmd,
-                cwd=str(vault_dir),
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                text=True
-            )
+        print(f"\n{'='*60}")
+        print(f"[!] NEW CONVERSATIONS DETECTED")
+        print(f"{'='*60}\n")
 
-            print(f"[✓] Agent spawned (PID: {process.pid})")
-            print("    Processing will happen in background...")
-            print("    Real-time status updates will appear below")
-            print(f"    (Agent will process through 8-stage pipeline with max 30 turns)")
+        # Open terminal with Claude
+        cmd = [
+            'wt.exe', '-w', '-1', '--title', 'Claude - Process Queue',
+            '--', 'cmd.exe', '/k',
+            f'cd /d "{vault_dir}" && claude --dangerously-skip-permissions'
+        ]
 
-            # Start thread to wait for agent completion and trigger embedding
-            threading.Thread(
-                target=self._wait_and_embed,
-                args=(process, vault_dir),
-                daemon=True
-            ).start()
+        subprocess.Popen(cmd)
 
-        except FileNotFoundError:
-            print("[X] Claude executable not found at expected path")
-            print("    Expected: C:\\Users\\bearj\\AppData\\Roaming\\npm\\claude.cmd")
-            print("    Make sure Claude Code is installed")
-            print("    You can manually run: claude 'Use processing-pipeline-agent'")
+        print(f"[+] Claude terminal opened")
+        print(f"\n[i] Type in the Claude window:")
+        print(f"      file watcher summons you\n")
+
+        # Beep
+        try:
+            import winsound
+            winsound.MessageBeep()
+        except:
+            pass
+
+        # Monitor completion
+        threading.Thread(target=self._wait_for_signal, args=(vault_dir,), daemon=True).start()
+
+    def _fallback_manual_prompt(self, vault_dir):
+        """Fallback: Prompt user to run Claude manually"""
+        print(f"\n{'='*60}")
+        print(f"[!] MANUAL ACTION REQUIRED")
+        print(f"{'='*60}")
+        print(f"\n1. Open terminal in: {vault_dir}")
+        print(f"2. Run: claude --dangerously-skip-permissions")
+        print(f"3. Type: /process-queue")
+        print(f"\n{'='*60}\n")
+
+        # Alert sound
+        try:
+            import winsound
+            winsound.MessageBeep(winsound.MB_ICONINFORMATION)
+        except:
+            pass
+
+    def _wait_for_signal(self, vault_dir):
+        """Wait for completion signal (infinite - agent will run until done)"""
+        try:
+            signal_file = vault_dir / "_system" / "agent_completion_signal.txt"
+
+            print(f"\n[i] Monitoring completion signal (no timeout)...")
+            print(f"    Signal file: {signal_file}\n")
+
+            # Infinite loop - agent will complete when it's done
+            while True:
+                if signal_file.exists():
+                    try:
+                        with open(signal_file, 'r') as f:
+                            signal = f.read().strip()
+
+                        print(f"\n{'='*70}")
+                        print(f"✅ PROCESSING PIPELINE COMPLETE!")
+                        print(f"{'='*70}")
+                        print(f"Signal received: {signal}\n")
+
+                        # Find and display the latest processing log
+                        self._display_latest_log(vault_dir)
+
+                        # Remove the completion signal file
+                        signal_file.unlink()
+                        print(f"\n[✓] Completion signal removed")
+
+                        # Notify user to close Claude session
+                        print(f"\n{'─'*70}")
+                        print(f"[!] PLEASE CLOSE THE CLAUDE TERMINAL WINDOW")
+                        print(f"    The processing agent has finished and should be terminated.")
+                        print(f"    Press Ctrl+C in the Claude window or close it manually.")
+                        print(f"{'─'*70}\n")
+
+                        # Alert beep
+                        try:
+                            import winsound
+                            winsound.MessageBeep(winsound.MB_ICONASTERISK)
+                            time.sleep(0.3)
+                            winsound.MessageBeep(winsound.MB_ICONASTERISK)
+                        except:
+                            pass
+
+                        return
+
+                    except Exception as e:
+                        print(f"[!] Error reading signal: {e}")
+
+                time.sleep(2)  # Poll every 2 seconds
+
         except Exception as e:
-            print(f"[X] Error spawning agent: {e}")
-            print("    You can manually run: claude 'Use processing-pipeline-agent'")
+            print(f"[X] Error monitoring signal: {e}")
+
+    def _display_latest_log(self, vault_dir):
+        """Display summary from the latest processing log."""
+        try:
+            log_dir = vault_dir / "docs" / "pipeline_agent"
+
+            if not log_dir.exists():
+                print(f"[!] Log directory not found: {log_dir}")
+                return
+
+            # Find all processing log files
+            log_files = sorted(log_dir.glob("processing_log_*.md"), reverse=True)
+
+            if not log_files:
+                print(f"[!] No processing logs found in {log_dir}")
+                return
+
+            # Read the latest log
+            latest_log = log_files[0]
+            print(f"\n{'─'*70}")
+            print(f"📋 PROCESSING LOG: {latest_log.name}")
+            print(f"{'─'*70}\n")
+
+            with open(latest_log, 'r', encoding='utf-8') as f:
+                content = f.read()
+
+            # Extract key sections to display
+            import re
+
+            # Extract summary statistics
+            summary_match = re.search(r'## Summary Statistics\s+(.*?)(?=\n##|\Z)', content, re.DOTALL)
+            if summary_match:
+                print("SUMMARY STATISTICS:")
+                summary_lines = summary_match.group(1).strip().split('\n')
+                for line in summary_lines:
+                    if line.strip().startswith('-'):
+                        print(f"  {line.strip()}")
+                print()
+
+            # Extract errors/warnings section
+            errors_match = re.search(r'## Errors & Warnings\s+(.*?)(?=\n##|\Z)', content, re.DOTALL)
+            if errors_match:
+                errors_text = errors_match.group(1).strip()
+                if "No errors" not in errors_text and errors_text:
+                    print("⚠️  ERRORS & WARNINGS:")
+                    print(f"  {errors_text}\n")
+
+            # Extract next actions
+            actions_match = re.search(r'## Next Actions\s+(.*?)(?=\n##|\Z)', content, re.DOTALL)
+            if actions_match:
+                actions_text = actions_match.group(1).strip()
+                if actions_text and not re.search(r'\{\{.*?\}\}', actions_text):  # Skip if template placeholders remain
+                    print("📌 NEXT ACTIONS:")
+                    actions_lines = actions_text.split('\n')
+                    for line in actions_lines:
+                        if line.strip().startswith('-'):
+                            print(f"  {line.strip()}")
+                    print()
+
+            print(f"{'─'*70}")
+            print(f"Full log available at: {latest_log.relative_to(vault_dir)}")
+            print(f"{'─'*70}")
+
+        except Exception as e:
+            print(f"[!] Error displaying log: {e}")
+            import traceback
+            traceback.print_exc()
 
     def _wait_and_embed(self, process, vault_dir):
         """Wait for agent to complete, then trigger embedding of new notes."""
@@ -551,6 +703,26 @@ def main():
     observer = Observer()
     observer.schedule(event_handler, str(raw_conversations_path), recursive=False)
     observer.start()
+
+    # Check for existing unprocessed files on startup
+    print("[*] Checking for existing unprocessed files...")
+    existing_unprocessed = list(raw_conversations_path.glob("unprocessed_*.md"))
+
+    if existing_unprocessed:
+        print(f"[!] Found {len(existing_unprocessed)} unprocessed file(s):")
+        for f in existing_unprocessed:
+            print(f"    - {f.name}")
+
+        print(f"\n[*] Triggering agent to process existing files...")
+        # Add to batch and trigger processing
+        for f in existing_unprocessed:
+            event_handler._add_file_to_batch(f)
+
+        # Force immediate processing (don't wait for timeout)
+        if event_handler.processing_batch:
+            event_handler.process_batch()
+    else:
+        print(f"[i] No existing unprocessed files found")
 
     # Start queue monitor for real-time agent status
     queue_monitor = QueueMonitor(queue_path)

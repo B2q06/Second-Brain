@@ -46,41 +46,68 @@ class MonthlyConsolidation:
 
         return tag_notes
 
-    def extract_monthly_updates(self, content: str) -> List[Dict]:
-        """Extract all updates from current month."""
-        updates = []
+    def extract_monthly_entries(self, content: str, month: int, year: int) -> List[Dict]:
+        """
+        Extract all entries from a specific month section.
 
-        # Find Recent Updates section
-        section_match = re.search(
-            r'## Recent Updates\s*\n(.*?)(?=\n##|\Z)',
-            content,
-            re.DOTALL
-        )
+        Args:
+            content: Tag note content
+            month: Month number (1-12)
+            year: Year (e.g., 2025)
+
+        Returns:
+            List of entry dicts with date, discussion, related_tags, source
+        """
+        import calendar
+        month_name = calendar.month_name[month]
+
+        # Find month section (e.g., "## November 2025")
+        section_pattern = rf'## {month_name} {year}\s*\n(.*?)(?=\n##|\Z)'
+        section_match = re.search(section_pattern, content, re.DOTALL)
 
         if not section_match:
-            return updates
+            return []
 
-        updates_section = section_match.group(1)
+        month_section = section_match.group(1)
+        entries = []
 
-        # Extract individual update entries
-        update_pattern = rf'### (\d{{4}}-{self.current_month:02d}-\d{{2}}) \(Conversation: \[\[([^\]]+)\]\]\)\s*\n((?:- [^\n]+\n)*)'
+        # Extract individual entries (### YYYY-MM-DD HH:MM format)
+        entry_pattern = r'### (\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2})?)\s*\n(.*?)(?=\n###|\Z)'
 
-        for match in re.finditer(update_pattern, updates_section):
+        for match in re.finditer(entry_pattern, month_section, re.DOTALL):
             date_str = match.group(1)
-            conversation = match.group(2)
-            observations = [
-                line.strip()[2:]  # Remove "- " prefix
-                for line in match.group(3).split('\n')
-                if line.strip().startswith('- ')
-            ]
+            entry_body = match.group(2).strip()
 
-            updates.append({
+            # Parse entry body
+            # Extract discussion (everything before Related/Source lines)
+            discussion_lines = []
+            related_tags = []
+            source = None
+
+            for line in entry_body.split('\n'):
+                if line.startswith('**Related'):
+                    # Extract wikilinks from Related line
+                    related_tags = re.findall(r'\[\[([^\]]+)\]\]', line)
+                elif line.startswith('**Source'):
+                    # Extract source conversation link
+                    source_match = re.search(r'\[\[([^\]]+)\]\]', line)
+                    if source_match:
+                        source = source_match.group(1)
+                else:
+                    # Part of discussion
+                    if line.strip():
+                        discussion_lines.append(line.strip())
+
+            discussion = ' '.join(discussion_lines)
+
+            entries.append({
                 'date': date_str,
-                'conversation': conversation,
-                'observations': observations
+                'discussion': discussion,
+                'related_tags': related_tags,
+                'source': source
             })
 
-        return updates
+        return entries
 
     def find_related_tags(self, tag_name: str, content: str) -> List[str]:
         """Find related tags from Related Tags section and cross-references in updates."""
@@ -153,115 +180,194 @@ class MonthlyConsolidation:
 
         return "\n".join(summary_lines)
 
-    def compress_daily_entries(self, content: str) -> str:
-        """Compress daily entries while preserving monthly summaries."""
+    def compress_month_section(
+        self,
+        content: str,
+        month: int,
+        year: int,
+        entries: List[Dict],
+        all_related_tags: Set[str]
+    ) -> str:
+        """
+        Compress a month section into a summary paragraph, preserving last-day entry.
 
-        # Find Recent Updates section
-        section_match = re.search(
-            r'(## Recent Updates\s*\n)(.*?)((?=\n##|\Z))',
-            content,
-            re.DOTALL
-        )
+        Args:
+            content: Full tag note content
+            month: Month to compress (1-12)
+            year: Year to compress
+            entries: All entries from this month
+            all_related_tags: All unique related tags from the month
 
-        if not section_match:
-            return content
+        Returns:
+            Updated content with compressed month section
+        """
+        import calendar
+        month_name = calendar.month_name[month]
 
-        section_header = section_match.group(1)
-        updates_section = section_match.group(2)
-        rest_of_content = section_match.group(3)
+        # Get last day of this month (leap year aware)
+        last_day = calendar.monthrange(year, month)[1]
+        last_day_str = f"{year}-{month:02d}-{last_day:02d}"
 
-        # Compress updates from previous months (keep only date and conversation)
-        def compress_update(match):
-            date_str = match.group(1)
-            conversation = match.group(2)
-            observations = match.group(3)
+        # Separate last-day entry from others
+        last_day_entry = None
+        regular_entries = []
 
-            # Check if from current month
-            try:
-                update_date = datetime.strptime(date_str, "%Y-%m-%d")
-                if update_date.month == self.current_month and update_date.year == self.current_year:
-                    # Keep full entry for current month
-                    return match.group(0)
-                else:
-                    # Compress older entries
-                    return f"### {date_str} (Conversation: [[{conversation}]])\n*[Compressed - see monthly summary]*\n\n"
-            except:
-                return match.group(0)
+        for entry in entries:
+            if entry['date'].startswith(last_day_str):
+                last_day_entry = entry
+            else:
+                regular_entries.append(entry)
 
-        update_pattern = r'### (\d{4}-\d{2}-\d{2}) \(Conversation: \[\[([^\]]+)\]\]\)\s*\n((?:- [^\n]+\n)*)'
-        compressed_updates = re.sub(update_pattern, compress_update, updates_section)
+        # Generate compressed summary
+        summary_parts = []
 
-        # Reconstruct content
-        before_section = content[:section_match.start()]
-        after_section = content[section_match.end():]
+        if regular_entries or last_day_entry:
+            summary_parts.append(
+                f"This month's work spanned {len(entries)} conversation(s). "
+            )
 
-        return before_section + section_header + compressed_updates + rest_of_content + after_section
+        # Consolidate key points from all discussions
+        if regular_entries:
+            # Take key sentences from discussions
+            key_points = []
+            for entry in regular_entries[:3]:  # Focus on first 3 entries
+                if entry['discussion']:
+                    # Take first sentence as key point
+                    first_sentence = entry['discussion'].split('.')[0] + '.'
+                    key_points.append(first_sentence)
 
-    def process_tag_note(self, tag_note_path: Path) -> bool:
-        """Process a single tag note for monthly consolidation."""
+            if key_points:
+                summary_parts.append(' '.join(key_points))
+
+        # Add cross-tag references
+        if all_related_tags:
+            summary_parts.append("\n\n**Related explorations:**")
+            for tag in sorted(all_related_tags)[:8]:  # Top 8 related tags
+                summary_parts.append(f"\n- [[{tag}]]")
+
+        compressed_summary = '\n'.join(summary_parts)
+
+        # Build new month section
+        new_section_parts = [f"## {month_name} {year}\n"]
+        new_section_parts.append(f"*Compressed from {len(regular_entries)} entries*\n\n")
+        new_section_parts.append(compressed_summary)
+
+        # Preserve last-day entry if it exists
+        if last_day_entry:
+            new_section_parts.append(f"\n\n### {last_day_entry['date']}")
+            new_section_parts.append(f"\n{last_day_entry['discussion']}")
+
+            if last_day_entry['related_tags']:
+                related = ', '.join([f"[[{t}]]" for t in last_day_entry['related_tags']])
+                new_section_parts.append(f"\n**Related**: {related}")
+
+            if last_day_entry['source']:
+                new_section_parts.append(f"\n**Source**: [[{last_day_entry['source']}]]")
+
+        new_section = ''.join(new_section_parts)
+
+        # Replace old month section with compressed version
+        old_section_pattern = rf'## {month_name} {year}\s*\n.*?(?=\n##|\Z)'
+        content = re.sub(old_section_pattern, new_section, content, flags=re.DOTALL)
+
+        return content
+
+    def compress_previous_month_if_needed(self, tag_note_path: Path, target_month: int = None, target_year: int = None) -> bool:
+        """
+        Check if we need to compress previous month and do it.
+
+        Args:
+            tag_note_path: Path to tag note
+            target_month: Month to compress (if None, compress previous month)
+            target_year: Year to compress (if None, use current year)
+
+        Returns:
+            True if compression performed or not needed, False on error
+        """
         try:
-            print(f"\n[~] Processing: {tag_note_path.name}")
-
             # Read content
             with open(tag_note_path, 'r', encoding='utf-8') as f:
                 content = f.read()
 
-            # Extract tag name from frontmatter
-            tag_match = re.search(r'^tag:\s*(.+)$', content, re.MULTILINE)
-            if not tag_match:
-                print(f"[!] Could not extract tag name")
-                return False
-            tag_name = tag_match.group(1).strip()
-
-            # Check if monthly summary already exists for this month
-            if f"## Monthly Summary ({self.month_name} {self.current_year})" in content:
-                print(f"[i] Monthly summary already exists, skipping")
-                return True
-
-            # Extract updates from current month
-            monthly_updates = self.extract_monthly_updates(content)
-
-            if not monthly_updates:
-                print(f"[i] No updates from {self.month_name}, skipping")
-                return True
-
-            print(f"[+] Found {len(monthly_updates)} update(s) from {self.month_name}")
-
-            # Find related tags
-            related_tags = self.find_related_tags(tag_name, content)
-            print(f"[+] Identified {len(related_tags)} related tag(s)")
-
-            # Generate monthly summary
-            summary = self.generate_monthly_summary(tag_name, monthly_updates, related_tags)
-
-            # Insert monthly summary before "## Related Tags" or at end
-            summary_section = f"\n## Monthly Summary ({self.month_name} {self.current_year})\n\n{summary}\n"
-
-            if "## Related Tags" in content:
-                content = content.replace("## Related Tags", summary_section + "\n## Related Tags")
-            elif "## Statistics" in content:
-                content = content.replace("## Statistics", summary_section + "\n## Statistics")
+            # Determine month to compress
+            if target_month is None or target_year is None:
+                # Calculate previous month
+                if self.current_month == 1:
+                    compress_month = 12
+                    compress_year = self.current_year - 1
+                else:
+                    compress_month = self.current_month - 1
+                    compress_year = self.current_year
             else:
-                # Append at end
-                content += summary_section
+                compress_month = target_month
+                compress_year = target_year
 
-            # Compress older daily entries
-            content = self.compress_daily_entries(content)
+            import calendar
+            compress_month_name = calendar.month_name[compress_month]
 
-            # Update last_updated in frontmatter
-            content = re.sub(
-                r'^last_updated:\s*.+$',
-                f'last_updated: {datetime.now().strftime("%Y-%m-%d")}',
+            # Check if month section exists and isn't already compressed
+            if f"## {compress_month_name} {compress_year}" not in content:
+                return True  # Month doesn't exist, nothing to compress
+
+            if f"*Compressed from" in content and f"## {compress_month_name} {compress_year}" in content:
+                print(f"[i] {compress_month_name} {compress_year} already compressed")
+                return True
+
+            # Extract entries from the month
+            entries = self.extract_monthly_entries(content, compress_month, compress_year)
+
+            if not entries:
+                print(f"[i] No entries found in {compress_month_name} {compress_year}")
+                return True
+
+            # Collect all related tags
+            all_related = set()
+            for entry in entries:
+                all_related.update(entry['related_tags'])
+
+            # Compress the month section
+            content = self.compress_month_section(
                 content,
-                flags=re.MULTILINE
+                compress_month,
+                compress_year,
+                entries,
+                all_related
             )
 
             # Write back
             with open(tag_note_path, 'w', encoding='utf-8') as f:
                 f.write(content)
 
-            print(f"[✓] Monthly summary added")
+            print(f"[✓] Compressed {compress_month_name} {compress_year} ({len(entries)} entries)")
             return True
+
+        except Exception as e:
+            print(f"[X] Error compressing month: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+
+    def process_tag_note(self, tag_note_path: Path, compress_mode: bool = False) -> bool:
+        """
+        Process a single tag note for monthly consolidation.
+
+        Args:
+            tag_note_path: Path to tag note
+            compress_mode: If True, compress previous month; if False, skip
+
+        Returns:
+            True on success, False on error
+        """
+        try:
+            print(f"\n[~] Processing: {tag_note_path.name}")
+
+            if compress_mode:
+                # Just compress previous month
+                return self.compress_previous_month_if_needed(tag_note_path)
+            else:
+                # Normal processing (when manually triggered)
+                print(f"[i] Skipping (use --compress to compress previous month)")
+                return True
 
         except Exception as e:
             print(f"[X] Error processing {tag_note_path}: {e}")
@@ -269,16 +375,17 @@ class MonthlyConsolidation:
             traceback.print_exc()
             return False
 
-    def run(self, force: bool = False):
-        """Run monthly consolidation for all tag notes."""
+    def run(self, compress: bool = False):
+        """
+        Run monthly consolidation for all tag notes.
 
-        # Check if it's last day of month
-        if not force and not self.is_last_day_of_month():
-            print(f"[i] Not last day of month, use --force to run anyway")
-            return
-
+        Args:
+            compress: If True, compress previous month
+        """
         print(f"\n{'='*60}")
         print(f"Monthly Consolidation: {self.month_name} {self.current_year}")
+        if compress:
+            print(f"Mode: Compress previous month")
         print(f"{'='*60}\n")
 
         # Find all tag notes
@@ -292,7 +399,7 @@ class MonthlyConsolidation:
         # Process each tag note
         success_count = 0
         for tag_note in tag_notes:
-            if self.process_tag_note(tag_note):
+            if self.process_tag_note(tag_note, compress_mode=compress):
                 success_count += 1
 
         print(f"\n{'='*60}")
@@ -307,8 +414,8 @@ def main():
     parser = argparse.ArgumentParser(description="Generate monthly summaries for tag notes")
     parser.add_argument("--vault", type=str, help="Path to Obsidian vault",
                        default="C:/obsidian-memory-vault")
-    parser.add_argument("--force", action="store_true",
-                       help="Force consolidation even if not last day of month")
+    parser.add_argument("--compress", action="store_true",
+                       help="Compress previous month's entries")
 
     args = parser.parse_args()
 
@@ -318,7 +425,7 @@ def main():
         sys.exit(1)
 
     consolidator = MonthlyConsolidation(vault_path)
-    consolidator.run(force=args.force)
+    consolidator.run(compress=args.compress)
 
 
 if __name__ == "__main__":

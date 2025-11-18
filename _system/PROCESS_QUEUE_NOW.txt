@@ -1,0 +1,10 @@
+============================================================
+FILE WATCHER ACTIVATED - PROCESS QUEUE NOW
+============================================================
+
+Type this message to activate the agent:
+
+    process queue
+
+The agent will automatically process all conversations.
+============================================================

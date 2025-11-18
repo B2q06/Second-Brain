@@ -1,0 +1,73 @@
+{
+  "generated_at": "2025-11-11T02:15:09.686849",
+  "metrics": {
+    "total_conversations": 15,
+    "total_tag_notes": 0,
+    "total_areas": 0,
+    "total_time_hours": 0.0,
+    "total_time_minutes": 0
+  },
+  "time_distribution": [],
+  "growth_trends": [
+    {
+      "week": "2025-W44",
+      "count": 8
+    }
+  ],
+  "hub_entities": [],
+  "recent_activity": [
+    {
+      "title": "Machine Learning Classification Pipeline with TensorFlow and scikit-learn",
+      "date": "2025-11-09",
+      "tags": [],
+      "file": "conversation_20251109_ml_classification_pipeline.md"
+    },
+    {
+      "title": "Neo4j Integration with FastAPI and JWT Authentication",
+      "date": "2025-11-09",
+      "tags": [],
+      "file": "conversation_20251109_neo4j_fastapi_integration.md"
+    },
+    {
+      "title": "Neo4j & MCP Server Integration Complete Setup",
+      "date": "2025-11-09",
+      "tags": [],
+      "file": "conversation_20251109_neo4j_mcp_integration.md"
+    },
+    {
+      "title": "FastAPI Backend Development - Planning Discussion",
+      "date": "2025-11-09",
+      "tags": [],
+      "file": "conversation_20251109_test_pipeline_001.md"
+    },
+    {
+      "title": "Agent Spawn Testing and File Watcher Monitoring Setup",
+      "date": "2025-11-08",
+      "tags": [],
+      "file": "conversation_20251108_agent_spawn_testing.md"
+    },
+    {
+      "title": "YouTube Sentiment Project Overview and Documentation",
+      "date": "2025-11-08",
+      "tags": [],
+      "file": "conversation_20251108_youtube_sentiment.md"
+    },
+    {
+      "title": "YouTube Sentiment Project Overview",
+      "date": "2025-11-08",
+      "tags": [],
+      "file": "conversation_20251108_youtube_sentiment_overview.md"
+    },
+    {
+      "title": "Testing File Watcher System",
+      "date": "2025-11-08",
+      "tags": [],
+      "file": "conversation_test_20251108_001.md"
+    }
+  ],
+  "tag_statistics": {
+    "by_root": {},
+    "by_depth": {},
+    "total_tags": 0
+  }
+}

@@ -890,6 +890,39 @@ eastern-culture:
   description: Cultural traditions and practices of Eastern civilizations
 ```
 
+### Projects
+```yaml
+projects:
+  canonical: "Projects"
+  aliases: []
+  parent_tags: []
+  root: Projects
+  category: projects
+  depth: 1
+  path: "Projects"
+  description: User's active and completed projects
+
+youtube-sentiment-project:
+  canonical: "YouTube Sentiment Project"
+  aliases: [YouTube Sentiment, yt-sentiment, youtube-sentiment]
+  parent_tags: [projects, data-science, python]
+  root: Projects
+  category: projects/data-science
+  depth: 3
+  path: "Projects > Data Science > YouTube Sentiment"
+  description: YouTube comment sentiment analysis for financial markets
+
+second-brain-project:
+  canonical: "Second Brain System"
+  aliases: [second-brain, memory-system, obsidian-system]
+  parent_tags: [projects, knowledge-management, automation]
+  root: Projects
+  category: projects/personal-knowledge
+  depth: 3
+  path: "Projects > Personal Knowledge > Second Brain"
+  description: Obsidian-based second brain system with automated processing pipeline
+```
+
 ## NOTES FOR AI AGENTS
 
 When processing conversations:

@@ -1,0 +1,58 @@
+{
+  "knowledge_coverage": {
+    "total_entities": 0,
+    "total_conversations": 15,
+    "total_time_hours": 0,
+    "areas": {},
+    "depth_distribution": {}
+  },
+  "learning_velocity": {
+    "entities_per_week": 0.0,
+    "conversations_per_week": 8.0,
+    "time_per_week_hours": 0,
+    "acceleration": 0.0
+  },
+  "cognitive_depth": {
+    "average_depth": 0,
+    "max_depth": 0,
+    "depth_by_area": {},
+    "shallow_vs_deep": {
+      "shallow": 0,
+      "medium": 0,
+      "deep": 0
+    }
+  },
+  "connection_density": {
+    "entities_per_conversation": 0.0,
+    "cross_area_connections": 0,
+    "hub_concentration": 0
+  },
+  "domain_diversity": {
+    "total_areas": 0,
+    "gini_coefficient": 0,
+    "area_balance": {}
+  },
+  "temporal_patterns": {
+    "active_days": 2,
+    "longest_streak": 2,
+    "current_streak": 0,
+    "preferred_time_of_day": null,
+    "weekly_distribution": {
+      "Saturday": 4,
+      "Sunday": 4
+    }
+  },
+  "entity_prominence": [],
+  "growth_trajectory": {
+    "weekly_growth": [
+      {
+        "week": "2025-W44",
+        "entities": 0,
+        "conversations": 8
+      }
+    ],
+    "projected_entities_30d": 0,
+    "projected_conversations_30d": 0,
+    "growth_phase": "Unknown"
+  }
+}
