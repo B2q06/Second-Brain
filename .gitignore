@@ -124,3 +124,6 @@ node_modules/
 
 # Ignore Smart Environment folder
 .smart-env
+# Exclude processed conversations with potential secrets
+00-Inbox/processed/*.md
+testing/set_env_and_test.bat
