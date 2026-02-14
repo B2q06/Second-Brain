@@ -124,3 +124,12 @@ node_modules/
 
 # Ignore Smart Environment folder
 .smart-env
+
+# Dev-only (tracked on dev branch, excluded from production)
+_bmad/
+_bmad-output/
+.claude/
+_bad/
+_archive/
+_memory/
+install-deps.sh

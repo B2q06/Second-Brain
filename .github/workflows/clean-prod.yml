@@ -1,0 +1,20 @@
+name: Clean production branch
+on:
+  push:
+    branches: [master]
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Remove dev-only files
+        run: |
+          git rm -r --ignore-unmatch _bmad/ _bmad-output/ .claude/ _bad/ _archive/ _memory/ install-deps.sh .github/workflows/clean-prod.yml
+          if git diff --staged --quiet; then
+            echo "Production branch is clean"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore: auto-clean dev-only files from production"
+            git push
+          fi
