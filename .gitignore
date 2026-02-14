@@ -124,3 +124,6 @@ node_modules/
 
 # Ignore Smart Environment folder
 .smart-env
+
+# Generated output (not tracked even on dev)
+_bmad-output/
